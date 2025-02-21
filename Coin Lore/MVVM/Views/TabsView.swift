@@ -1,6 +1,15 @@
 import SwiftUI
 
 struct TabsView: View {
+    @StateObject private var statisticsViewModel = StatisticsViewModel()
+    @StateObject private var settingsViewModel: SettingsViewModel
+
+    init() {
+        let statsVM = StatisticsViewModel()
+        _statisticsViewModel = StateObject(wrappedValue: statsVM)
+        _settingsViewModel = StateObject(wrappedValue: SettingsViewModel(statisticsViewModel: statsVM))
+    }
+
     var body: some View {
         TabView {
             MainView()
@@ -8,17 +17,20 @@ struct TabsView: View {
                     Image(systemName: "house.fill")
                     Text("Hjem")
                 }
+            
             MarketView()
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Marked")
                 }
-            StatisticsView()
+            
+            StatisticsView(viewModel: statisticsViewModel)
                 .tabItem {
                     Image(systemName: "chart.pie.fill")
                     Text("Statistikk")
                 }
-            SettingsView()
+            
+            SettingsView(viewModel: settingsViewModel)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Innstillinger")

@@ -13,6 +13,11 @@ struct ChartData: Identifiable {
 class StatisticsViewModel: ObservableObject {
     // MARK: - Published Properties
     
+    // MARK: - Dependencies
+    private let statisticsRepository = StatisticsRepository()
+    @Published var shouldAnimate = false
+    private var emojiThreshold: Int = 10 // Standardverdi, vil bli overskrevet fra SettingsViewModel
+    
     @Published var cryptoStats: [CryptoTickerModel] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -29,7 +34,7 @@ class StatisticsViewModel: ObservableObject {
         case percentChange7d
     }
     
-    // MARK: - Fetching Data
+    // MARK: - Fetching Data with Change Detection
     func fetchStatistics() {
         print("📡 fetchStatistics() called, setting isLoading = true")
         DispatchQueue.main.async {
@@ -46,16 +51,21 @@ class StatisticsViewModel: ObservableObject {
                 case .success(let tickers):
                     print("📊 Successfully fetched \(tickers.count) tickers")
                     
-                    // Force a state change by resetting first
-                    self?.cryptoStats = []
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self?.cryptoStats = tickers
-                        self?.sortData()
-                        self?.isLoading = false
-                        self?.objectWillChange.send() // 🚀 Force SwiftUI to refresh UI
-                        print("🎯 cryptoStats updated with \(self?.cryptoStats.count ?? 0) items")
-                    }
+                    // Hent tidligere statistikk
+                    let previousStats = self?.statisticsRepository.getPreviousStatistics() ?? []
+
+                    // Sjekk om noen verdier har endret seg mer enn emojiThreshold
+                    self?.shouldAnimate = self?.hasSignificantChange(oldStats: previousStats, newStats: tickers) ?? false
+
+                    // Lagre de nye verdiene for senere sammenligning
+                    self?.statisticsRepository.savePreviousStatistics(tickers)
+
+                    // Oppdater UI
+                    self?.cryptoStats = tickers
+                    self?.sortData()
+                    self?.isLoading = false
+                    self?.objectWillChange.send()
+                    print("🎯 cryptoStats updated with \(self?.cryptoStats.count ?? 0) items")
                     
                 case .failure(let error):
                     print("❌ Error fetching statistics: \(error.localizedDescription)")
@@ -113,4 +123,32 @@ class StatisticsViewModel: ObservableObject {
             )
         }
     }
+    
+    // MARK: - Check for Significant Changes
+    private func hasSignificantChange(oldStats: [CryptoTickerModel], newStats: [CryptoTickerModel]) -> Bool {
+        for newCrypto in newStats {
+            if let oldCrypto = oldStats.first(where: { $0.id == newCrypto.id }) {
+                let change1h = abs((Double(newCrypto.percentChange1h) ?? 0) - (Double(oldCrypto.percentChange1h) ?? 0))
+                let change24h = abs((Double(newCrypto.percentChange24h) ?? 0) - (Double(oldCrypto.percentChange24h) ?? 0))
+                let change7d = abs((Double(newCrypto.percentChange7d) ?? 0) - (Double(oldCrypto.percentChange7d) ?? 0))
+                
+                if change1h > Double(emojiThreshold) || change24h > Double(emojiThreshold) || change7d > Double(emojiThreshold) {
+                    print("💰 Significant change detected! Triggering animation.")
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    // MARK: - Update Emoji Threshold from Settings
+    func updateEmojiThreshold(_ newThreshold: Int) {
+        self.emojiThreshold = newThreshold
+    }
+
 }
+
+
+
+
+
