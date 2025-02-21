@@ -1,17 +1,3 @@
-//
-//  SettingsViewModel.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 21/02/2025.
-//
-
-
-//
-//  SettingsViewModel.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 21/02/2025.
-//
 
 
 import Foundation
@@ -20,7 +6,11 @@ class SettingsViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var currencyRate: Double = 10.0
     @Published var emojiThreshold: Int = 10
+    @Published var selectedCurrency: String = "NOK" // Default currency
+    @Published var exchangeRates: [String: Double] = [:] // Store fetched exchange rates
     
+    private let currencyManager = CurrencyManager.shared
+
     private let settingsRepository = SettingsRepository()
     private let statisticsViewModel: StatisticsViewModel
 
@@ -37,13 +27,22 @@ class SettingsViewModel: ObservableObject {
         // 🔥 Notify other ViewModels about the change
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": newRate])
     }
+    
 
 
-    // MARK: - Load Settings
+    // MARK: - Load Settings (Updated)
     private func loadSettings() {
+        self.selectedCurrency = settingsRepository.getSelectedCurrency() // Load saved currency
         self.currencyRate = settingsRepository.getCurrencyRate()
         self.emojiThreshold = settingsRepository.getEmojiThreshold()
         statisticsViewModel.updateEmojiThreshold(self.emojiThreshold) // Oppdater StatisticsViewModel
+    }
+    
+    // MARK: - Update Selected Currency
+    func updateSelectedCurrency(_ newCurrency: String) {
+        selectedCurrency = newCurrency
+        settingsRepository.setSelectedCurrency(newCurrency) // Save currency
+        updateCurrencyRateFromAPI() // Update conversion rate
     }
 
   
@@ -54,6 +53,27 @@ class SettingsViewModel: ObservableObject {
         statisticsViewModel.updateEmojiThreshold(newThreshold) // Oppdater StatisticsViewModel
     }
 
+    // MARK: - Fetch Exchange Rates
+    func fetchExchangeRates() {
+        currencyManager.fetchExchangeRates { [weak self] (result: Result<[String: Double], Error>) in
+            switch result {
+            case .success(let rates):
+                DispatchQueue.main.async {
+                    self?.exchangeRates = rates
+                    self?.updateCurrencyRateFromAPI()
+                }
+            case .failure(let error):
+                print("[SettingsViewModel] Failed to fetch exchange rates: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Update Currency Rate Based on Selected Currency
+    func updateCurrencyRateFromAPI() {
+        if let rate = exchangeRates[selectedCurrency] {
+            updateCurrencyRate(rate)
+        }
+    }
 }
 
 
@@ -61,6 +81,10 @@ class SettingsViewModel: ObservableObject {
 extension Notification.Name {
     static let currencyRateUpdated = Notification.Name("currencyRateUpdated")
 }
+
+
+
+
 
 
 

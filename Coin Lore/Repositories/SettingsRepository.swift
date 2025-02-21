@@ -15,7 +15,19 @@ class SettingsRepository {
     private enum Keys {
         static let currencyRate = "currencyRate"
         static let emojiThreshold = "emojiThreshold"
+        static let selectedCurrency = "selectedCurrency"
+
     }
+    
+    // MARK: - Selected Currency
+    func getSelectedCurrency() -> String {
+        return userDefaults.string(forKey: Keys.selectedCurrency) ?? "NOK" // Default to NOK
+    }
+
+    func setSelectedCurrency(_ currency: String) {
+        userDefaults.set(currency, forKey: Keys.selectedCurrency)
+    }
+
 
     // Standardverdier hvis ingen verdi er lagret
     private enum DefaultValues {
