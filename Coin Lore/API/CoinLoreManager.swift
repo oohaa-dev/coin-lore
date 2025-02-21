@@ -38,11 +38,22 @@ class CoinLoreManager {
             }
             
             do {
-                let decodedData = try JSONDecoder().decode(GlobalMarketModel.self, from: data)
-                DispatchQueue.main.async {
-                    completion(.success(decodedData))
+                // Decode the data as an array and extract the first element.
+                let decodedArray = try JSONDecoder().decode([GlobalMarketModel].self, from: data)
+                if let firstData = decodedArray.first {
+                    DispatchQueue.main.async {
+                        completion(.success(firstData))
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(.failure(NSError(domain: "No data found", code: 404, userInfo: nil)))
+                    }
                 }
             } catch {
+                // Log the raw data to see what is coming back
+                if let dataString = String(data: data, encoding: .utf8) {
+                    print("[CoinLoreManager] Raw data on error: \(dataString)")
+                }
                 print("[CoinLoreManager] Decoding error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
@@ -50,6 +61,8 @@ class CoinLoreManager {
             }
         }.resume()
     }
+
+
     
     /// Fetch cryptocurrency tickers
     func fetchTickers(completion: @escaping (Result<[CryptoTickerModel], Error>) -> Void) {
