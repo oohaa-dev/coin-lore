@@ -5,7 +5,6 @@
 //  Created by Ola Oldernes Hårstad on 21/02/2025.
 //
 
-
 import SwiftUI
 
 struct MarketView: View {
@@ -28,9 +27,10 @@ struct MarketView: View {
                             VStack(alignment: .leading) {
                                 Text(ticker.name)
                                     .font(.headline)
-                                Text("$\(ticker.priceUSD)")
+                                Text(viewModel.convertToNOK(usdValue: Double(ticker.priceUSD) ?? 0.0))
                                     .foregroundColor(.gray)
                                     .font(.subheadline)
+
                             }
                         }
                     }

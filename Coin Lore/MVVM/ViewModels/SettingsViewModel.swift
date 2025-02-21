@@ -18,9 +18,9 @@ import Foundation
 
 class SettingsViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var currencyRate: Double = 10.0  // Standardverdi, f.eks. 10 NOK per USD
-    @Published var emojiThreshold: Int = 10     // Standard emoji-grense (0-100)
-
+    @Published var currencyRate: Double = 10.0
+    @Published var emojiThreshold: Int = 10
+    
     private let settingsRepository = SettingsRepository()
     private let statisticsViewModel: StatisticsViewModel
 
@@ -29,6 +29,15 @@ class SettingsViewModel: ObservableObject {
         self.statisticsViewModel = statisticsViewModel
         loadSettings()
     }
+    // MARK: - Update Settings
+    func updateCurrencyRate(_ newRate: Double) {
+        currencyRate = newRate
+        settingsRepository.setCurrencyRate(newRate)
+        
+        // 🔥 Notify other ViewModels about the change
+        NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": newRate])
+    }
+
 
     // MARK: - Load Settings
     private func loadSettings() {
@@ -37,15 +46,21 @@ class SettingsViewModel: ObservableObject {
         statisticsViewModel.updateEmojiThreshold(self.emojiThreshold) // Oppdater StatisticsViewModel
     }
 
-    // MARK: - Update Settings
-    func updateCurrencyRate(_ newRate: Double) {
-        currencyRate = newRate
-        settingsRepository.setCurrencyRate(newRate)
-    }
+  
 
     func updateEmojiThreshold(_ newThreshold: Int) {
         emojiThreshold = newThreshold
         settingsRepository.setEmojiThreshold(newThreshold)
         statisticsViewModel.updateEmojiThreshold(newThreshold) // Oppdater StatisticsViewModel
     }
+
 }
+
+
+// MARK: - Notification Name Extension
+extension Notification.Name {
+    static let currencyRateUpdated = Notification.Name("currencyRateUpdated")
+}
+
+
+

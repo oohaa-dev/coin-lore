@@ -13,6 +13,8 @@ class MarketViewModel: ObservableObject {
     @Published var cryptoTickers: [CryptoTickerModel] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
+
     
     private let coinLoreManager = CoinLoreManager.shared
     private var sortAscending = true
@@ -23,6 +25,32 @@ class MarketViewModel: ObservableObject {
         case percentChange1h
         case percentChange24h
         case percentChange7d
+    }
+    
+    init() {
+        observeCurrencyRateUpdates()
+    }
+    
+    // MARK: - Convert USD to NOK
+    func convertToNOK(usdValue: Double) -> String {
+        let nokValue = usdValue * currencyRate
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "NOK"
+        return formatter.string(from: NSNumber(value: nokValue)) ?? "\(nokValue) kr"
+    }
+    
+    // MARK: - Observe Currency Rate Updates
+    private func observeCurrencyRateUpdates() {
+        NotificationCenter.default.addObserver(self, selector: #selector(updateCurrencyRate(_:)), name: .currencyRateUpdated, object: nil)
+    }
+
+    @objc private func updateCurrencyRate(_ notification: Notification) {
+        if let newRate = notification.userInfo?["currencyRate"] as? Double {
+            DispatchQueue.main.async {
+                self.currencyRate = newRate
+            }
+        }
     }
     
     func fetchTickers() {
@@ -65,3 +93,9 @@ class MarketViewModel: ObservableObject {
         sortTickers()
     }
 }
+
+
+
+
+
+

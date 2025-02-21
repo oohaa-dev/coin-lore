@@ -20,12 +20,16 @@ struct MainView: View {
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
                         Text("Active Markets: \(marketData.activeMarkets)")
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
-                        Text("Total Market Cap: $\(marketData.totalMcap, specifier: "%.2f")")
+                        
+                        Text("Total Market Cap: \(viewModel.convertToNOK(usdValue: marketData.totalMcap))")
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
-                        Text("Total Volume: $\(marketData.totalVolume, specifier: "%.2f")")
+                        
+                        Text("Total Volume: \(viewModel.convertToNOK(usdValue: marketData.totalVolume))")
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
+                        
                         Text("BTC Dominance: \(marketData.btcDominance)%")
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
+                        
                         Text("ETH Dominance: \(marketData.ethDominance)%")
                             .foregroundColor(viewModel.isStaleData ? .red : .primary)
                     }
