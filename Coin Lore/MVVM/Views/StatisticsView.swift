@@ -1,42 +1,75 @@
-//
-//  StatisticsView.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 21/02/2025.
-//
-
-
 import SwiftUI
 
 struct StatisticsView: View {
+    @StateObject private var viewModel = StatisticsViewModel()
+    
+    init() {
+        print("🚀 StatisticsView is being initialized")
+    }
+    
     var body: some View {
         NavigationView {
-            VStack {
-                // Dropdown / Picker for å velge kryptovalutaer
-                Picker("Velg kryptovaluta", selection: .constant(0)) {
-                    Text("Bitcoin").tag(0)
-                    Text("Ethereum").tag(1)
-                    Text("Ripple").tag(2)
+            Group {
+                if viewModel.isLoading {
+                    ProgressView("Loading statistics...")
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            ForEach(viewModel.chartData) { data in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(data.cryptoName)
+                                        .font(.headline)
+                                    
+                                    HStack(spacing: 16) {
+                                        BarView(value: data.change1h, label: "1h", color: .blue)
+                                        BarView(value: data.change24h, label: "24h", color: .green)
+                                        BarView(value: data.change7d, label: "7d", color: .orange)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        .padding(.vertical)
+                    }
+                    .refreshable {
+                        print("🔄 StatisticsView: Refreshing statistics")
+                        viewModel.fetchStatistics()
+                    }
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-
-                // Placeholder for graf (erstattes med riktig visualisering senere)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 300)
-                    .cornerRadius(10)
-                    .padding()
-
-                Spacer()
             }
-            .navigationTitle("Statistikk")
+            .navigationTitle("Statistics")
+            .onAppear {
+                print("👀 StatisticsView: onAppear triggered, fetching statistics")
+                viewModel.fetchStatistics()
+            }
         }
     }
 }
 
-struct StatisticsView_Previews: PreviewProvider {
-    static var previews: some View {
-        StatisticsView()
+
+struct BarView: View {
+    let value: Double
+    let label: String
+    let color: Color
+    
+    // Scale the bar height (adjust the factor as needed)
+    var barHeight: CGFloat {
+        return CGFloat(max(10, min(abs(value) * 3, 100)))
+    }
+    
+    var body: some View {
+        VStack {
+            // The bar represents the absolute percentage change.
+            Rectangle()
+                .fill(color)
+                .frame(width: 20, height: barHeight)
+            
+            Text(label)
+                .font(.caption)
+        }
     }
 }
