@@ -3,7 +3,7 @@ import Charts
 
 struct StatisticsGraphView: View {
     @State private var selectedTimeframes: Set<Timeframe> = [.oneHour, .twentyFourHour, .sevenDays]
-    var cryptos: [DummyChartData]
+    var cryptos: [ChartData]
 
     var body: some View {
         VStack {
@@ -74,9 +74,10 @@ struct StatisticsGraphView: View {
     }
 
     // Filtered Data Based on Selected Timeframes
-    private var filteredData: [DummyChartData] {
+    private var filteredData: [ChartData] {
         cryptos
     }
+
 }
 
 // MARK: - Timeframe Enum
@@ -102,26 +103,21 @@ enum Timeframe: String, CaseIterable, Hashable {
     }
 }
 
-// MARK: - Dummy Data for Preview
-struct DummyChartData: Identifiable {
-    let id = UUID()
-    let cryptoName: String
-    let change1h: Double
-    let change24h: Double
-    let change7d: Double
-}
+
+
 
 // MARK: - SwiftUI Preview
 struct StatisticsGraphView_Previews: PreviewProvider {
     static var previews: some View {
         StatisticsGraphView(cryptos: [
-            DummyChartData(cryptoName: "Bitcoin", change1h: -3.4, change24h: 2.1, change7d: 5.3),
-            DummyChartData(cryptoName: "Ethereum", change1h: 3.2, change24h: -1.7, change7d: 4.2),
-            DummyChartData(cryptoName: "Ripple", change1h: -3.3, change24h: 1.2, change7d: -2.4),
-            DummyChartData(cryptoName: "Litecoin", change1h: 3.4, change24h: 4.0, change7d: -1.8),
-            DummyChartData(cryptoName: "Dogecoin", change1h: 1.3, change24h: -2.1, change7d: 3.9)
+            ChartData(cryptoName: "Bitcoin", change1h: -3.4, change24h: 2.1, change7d: 5.3),
+            ChartData(cryptoName: "Ethereum", change1h: 3.2, change24h: -1.7, change7d: 4.2),
+            ChartData(cryptoName: "Ripple", change1h: -3.3, change24h: 1.2, change7d: -2.4),
+            ChartData(cryptoName: "Litecoin", change1h: 3.4, change24h: 4.0, change7d: -1.8),
+            ChartData(cryptoName: "Dogecoin", change1h: 1.3, change24h: -2.1, change7d: 3.9)
         ])
         .previewLayout(.sizeThatFits)
         .padding()
     }
 }
+

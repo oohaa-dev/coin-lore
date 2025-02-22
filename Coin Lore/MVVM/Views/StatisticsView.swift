@@ -25,20 +25,9 @@ struct StatisticsView: View {
                             
                             ScrollView {
                                 VStack(alignment: .leading, spacing: 16) {
-                                    ForEach(viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) }) { data in
+                                    StatisticsGraphView(cryptos: viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) })
+                                        .padding()
 
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text(data.cryptoName)
-                                                .font(.headline)
-                                            
-                                            HStack(spacing: 16) {
-                                                BarView(value: data.change1h, label: "1h", color: .blue)
-                                                BarView(value: data.change24h, label: "24h", color: .green)
-                                                BarView(value: data.change7d, label: "7d", color: .orange)
-                                            }
-                                        }
-                                        .padding(.horizontal)
-                                    }
                                 }
                                 .padding(.vertical)
                             }
