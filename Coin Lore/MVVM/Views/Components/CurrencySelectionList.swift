@@ -5,7 +5,6 @@
 //  Created by Ola Oldernes Hårstad on 22/02/2025.
 //
 
-
 import SwiftUI
 
 struct CurrencySelectionList: View {
@@ -13,9 +12,47 @@ struct CurrencySelectionList: View {
     let availableCurrencies: [String] // List of all possible currencies
     var onDone: () -> Void // Callback for when the user finishes selection
     
+    @State private var sortOrder: Bool = true // true for A-Z, false for Z-A
+    @State private var selectedFilter: FilterOption = .all // Default: show all
+
+    enum FilterOption: String, CaseIterable {
+        case all = "All"
+        case selected = "Selected"
+        case unselected = "Unselected"
+        
+        var next: FilterOption {
+            switch self {
+            case .all: return .selected
+            case .selected: return .unselected
+            case .unselected: return .all
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .all: return "line.3.horizontal.circle"
+            case .selected: return "checkmark.circle.fill"
+            case .unselected: return "circle"
+            }
+        }
+    }
+
+    var filteredCurrencies: [String] {
+        let sortedList = sortOrder ? availableCurrencies.sorted() : availableCurrencies.sorted(by: >)
+        
+        switch selectedFilter {
+        case .all:
+            return sortedList
+        case .selected:
+            return sortedList.filter { selectedCurrencies.contains($0) }
+        case .unselected:
+            return sortedList.filter { !selectedCurrencies.contains($0) }
+        }
+    }
+    
     var body: some View {
         NavigationView {
-            List(availableCurrencies, id: \.self) { currency in
+            List(filteredCurrencies, id: \.self) { currency in
                 HStack {
                     Text(currency)
                         .font(.body)
@@ -34,6 +71,21 @@ struct CurrencySelectionList: View {
             }
             .navigationTitle("Select Currencies")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack {
+                        Button(action: {
+                            sortOrder.toggle() // Toggle sorting order
+                        }) {
+                            Image(systemName: sortOrder ? "arrow.up" : "arrow.down")
+                        }
+                        
+                        Button(action: {
+                            selectedFilter = selectedFilter.next // Cycle through filter options
+                        }) {
+                            Image(systemName: selectedFilter.icon)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         onDone() // Call the completion handler
