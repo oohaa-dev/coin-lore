@@ -6,58 +6,72 @@ struct StatisticsGraphView: View {
     var cryptos: [ChartData]
 
     var body: some View {
-        VStack {
-            // Timeframe Selection
-            MultiTimeframeToggleView(selectedTimeframes: $selectedTimeframes)
+        GeometryReader { geometry in // ✅ Get available screen height
+            VStack {
+                // Timeframe Selection
+                MultiTimeframeToggleView(selectedTimeframes: $selectedTimeframes)
 
-            // Graph Title
-            Text("Cryptocurrency Performance")
-                .font(.headline)
-                .padding(.bottom, 10)
+                // Graph Title
+                Text("Cryptocurrency Performance")
+                    .font(.headline)
+                    .padding(.bottom, 10)
 
-            // Scrollable Chart Container
-            ScrollView(.vertical) {
-                VStack {
-                    // X-Axis Labels (Moved to Top)
-                    Chart {
-                        ForEach(filteredData.indices, id: \ .self) { index in
-                            let crypto = filteredData[index]
-                            let timeframes = selectedTimeframes.sorted(by: { $0.sortOrder < $1.sortOrder })
-
-                            ForEach(timeframes.indices, id: \ .self) { tIndex in
-                                let timeframe = timeframes[tIndex]
-                                let changeValue = timeframe == .oneHour ? crypto.change1h :
-                                                  timeframe == .twentyFourHour ? crypto.change24h :
-                                                  crypto.change7d
-
-                                BarMark(
-                                    x: .value("Change", changeValue),
-                                    y: .value("Cryptocurrency", crypto.cryptoName)
-                                )
-                                .position(by: .value("Timeframe", timeframe.rawValue)) // Prevents stacking
-                                .foregroundStyle(timeframe.color)
-                            }
+                // Scrollable Chart Container (Only If Needed)
+                let chartHeight = CGFloat(cryptos.count) * 50
+                if chartHeight > geometry.size.height { // ✅ Only scroll if necessary
+                    ScrollView(.vertical) {
+                        VStack {
+                            chartView
                         }
+                        .padding()
                     }
-                    .chartXAxis {
-                        AxisMarks(position: .top) { // ✅ Move X-Axis labels to the top
-                            AxisGridLine()
-                            AxisTick()
-                            AxisValueLabel()
-                        }
+                } else {
+                    VStack {
+                        chartView
                     }
-                    .chartYAxis {
-                        AxisMarks(position: .leading) {
-                            AxisValueLabel()
-                        }
-                    }
-                    .chartXScale(domain: adjustedXAxisRange) // Keep 0 centered
-                    .frame(height: CGFloat(cryptos.count) * 50) // ✅ Static bar size
+                    .frame(height: chartHeight) // ✅ Allow full expansion
                 }
-                .padding()
             }
-            .frame(height: min(CGFloat(cryptos.count) * 50, 400)) // ✅ Enable scrolling if needed
+            .frame(height: geometry.size.height) // ✅ Expand to available height
         }
+    }
+
+    // Chart View
+    private var chartView: some View {
+        Chart {
+            ForEach(filteredData.indices, id: \ .self) { index in
+                let crypto = filteredData[index]
+                let timeframes = selectedTimeframes.sorted(by: { $0.sortOrder < $1.sortOrder })
+
+                ForEach(timeframes.indices, id: \ .self) { tIndex in
+                    let timeframe = timeframes[tIndex]
+                    let changeValue = timeframe == .oneHour ? crypto.change1h :
+                                      timeframe == .twentyFourHour ? crypto.change24h :
+                                      crypto.change7d
+
+                    BarMark(
+                        x: .value("Change", changeValue),
+                        y: .value("Cryptocurrency", crypto.cryptoName)
+                    )
+                    .position(by: .value("Timeframe", timeframe.rawValue)) // Prevents stacking
+                    .foregroundStyle(timeframe.color)
+                }
+            }
+        }
+        .chartXAxis {
+            AxisMarks(position: .top) {
+                AxisGridLine()
+                AxisTick()
+                AxisValueLabel()
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) {
+                AxisValueLabel()
+            }
+        }
+        .chartXScale(domain: adjustedXAxisRange)
+        .frame(height: CGFloat(cryptos.count) * 50) // ✅ Expand dynamically
     }
 
     // Adjusted X-Axis Range to Keep 0% Centered and Fit Largest Bar
@@ -77,7 +91,6 @@ struct StatisticsGraphView: View {
     private var filteredData: [ChartData] {
         cryptos
     }
-
 }
 
 // MARK: - Timeframe Enum
@@ -103,9 +116,6 @@ enum Timeframe: String, CaseIterable, Hashable {
     }
 }
 
-
-
-
 // MARK: - SwiftUI Preview
 struct StatisticsGraphView_Previews: PreviewProvider {
     static var previews: some View {
@@ -120,4 +130,3 @@ struct StatisticsGraphView_Previews: PreviewProvider {
         .padding()
     }
 }
-

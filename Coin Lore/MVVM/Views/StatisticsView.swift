@@ -10,48 +10,65 @@ struct StatisticsView: View {
     var body: some View {
         ZStack {
             NavigationView {
-                Group {
-                    if viewModel.isLoading {
-                        ProgressView("Loading statistics...")
-                    } else if let errorMessage = viewModel.errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .padding()
-                    } else {
-                        VStack {
-                            AddCurrencyButton {
-                                showCurrencySelection = true
-                            }
-                            
-                            ScrollView {
-                                VStack(alignment: .leading, spacing: 16) {
-                                    StatisticsGraphView(cryptos: viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) })
-                                        .padding()
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Statistics")
+                        .font(.largeTitle)
+                        .bold()
+                        .padding(.top, 16)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Ensure it aligns to the top-left
 
-                                }
-                                .padding(.vertical)
-                            }
-                            .refreshable {
-                                print("🔄 StatisticsView: Refreshing statistics")
-                                viewModel.fetchStatistics()
-                            }
+                    Group {
+                        if viewModel.isLoading {
+                            ProgressView("Loading statistics...")
+                        } else if let errorMessage = viewModel.errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .padding()
+                        } else {
+                            StatisticsGraphView(cryptos: viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) })
+                                .padding()
                         }
                     }
+                    .refreshable {
+                        print("🔄 StatisticsView: Refreshing statistics")
+                        viewModel.fetchStatistics()
+                    }
                 }
-                .navigationTitle("Statistics")
+                .frame(maxHeight: .infinity, alignment: .top)
+                .navigationBarHidden(true)
                 .onAppear {
                     print("👀 StatisticsView: onAppear triggered, fetching statistics")
                     viewModel.fetchStatistics()
                 }
             }
             .sheet(isPresented: $showCurrencySelection) {
+                let available = viewModel.cryptoStats.isEmpty ? [] : viewModel.cryptoStats.map { $0.name }
+
                 CurrencySelectionList(
                     selectedCurrencies: $selectedCurrencies,
-                    availableCurrencies: viewModel.cryptoStats.map { $0.name },
+                    availableCurrencies: available,
                     onDone: {
                         showCurrencySelection = false
                     }
                 )
+            }
+
+
+            // Floating Add Button in Bottom-Right Corner
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    AddCurrencyButton {
+                        viewModel.fetchStatistics() // Ensure fresh data before showing
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Slight delay for UI update
+                            showCurrencySelection = true
+                        }
+                    }
+
+                    .padding(.bottom, 20) // Adjust to position above the tab bar
+                    .padding(.trailing, 20)
+                }
             }
 
             // 💰 Emoji-animasjon
@@ -81,30 +98,6 @@ struct StatisticsView: View {
             withAnimation {
                 showAnimation = false
             }
-        }
-    }
-}
-
-
-struct BarView: View {
-    let value: Double
-    let label: String
-    let color: Color
-    
-    // Scale the bar height (adjust the factor as needed)
-    var barHeight: CGFloat {
-        return CGFloat(max(10, min(abs(value) * 3, 100)))
-    }
-    
-    var body: some View {
-        VStack {
-            // The bar represents the absolute percentage change.
-            Rectangle()
-                .fill(color)
-                .frame(width: 20, height: barHeight)
-            
-            Text(label)
-                .font(.caption)
         }
     }
 }
