@@ -4,6 +4,8 @@ struct StatisticsView: View {
     @ObservedObject var viewModel: StatisticsViewModel
     @State private var showAnimation = false
     @State private var emojiPositions: [CGFloat] = []
+    @State private var showCurrencySelection = false
+    @State private var selectedCurrencies: Set<String> = []
 
     var body: some View {
         ZStack {
@@ -16,27 +18,33 @@ struct StatisticsView: View {
                             .foregroundColor(.red)
                             .padding()
                     } else {
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 16) {
-                                ForEach(viewModel.chartData) { data in
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(data.cryptoName)
-                                            .font(.headline)
-                                        
-                                        HStack(spacing: 16) {
-                                            BarView(value: data.change1h, label: "1h", color: .blue)
-                                            BarView(value: data.change24h, label: "24h", color: .green)
-                                            BarView(value: data.change7d, label: "7d", color: .orange)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
+                        VStack {
+                            AddCurrencyButton {
+                                showCurrencySelection = true
                             }
-                            .padding(.vertical)
-                        }
-                        .refreshable {
-                            print("🔄 StatisticsView: Refreshing statistics")
-                            viewModel.fetchStatistics()
+                            
+                            ScrollView {
+                                VStack(alignment: .leading, spacing: 16) {
+                                    ForEach(viewModel.chartData.filter { selectedCurrencies.isEmpty || selectedCurrencies.contains($0.cryptoName) }) { data in
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text(data.cryptoName)
+                                                .font(.headline)
+                                            
+                                            HStack(spacing: 16) {
+                                                BarView(value: data.change1h, label: "1h", color: .blue)
+                                                BarView(value: data.change24h, label: "24h", color: .green)
+                                                BarView(value: data.change7d, label: "7d", color: .orange)
+                                            }
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                }
+                                .padding(.vertical)
+                            }
+                            .refreshable {
+                                print("🔄 StatisticsView: Refreshing statistics")
+                                viewModel.fetchStatistics()
+                            }
                         }
                     }
                 }
@@ -46,10 +54,19 @@ struct StatisticsView: View {
                     viewModel.fetchStatistics()
                 }
             }
+            .sheet(isPresented: $showCurrencySelection) {
+                CurrencySelectionList(
+                    selectedCurrencies: $selectedCurrencies,
+                    availableCurrencies: viewModel.cryptoStats.map { $0.name },
+                    onDone: {
+                        showCurrencySelection = false
+                    }
+                )
+            }
 
             // 💰 Emoji-animasjon
             if showAnimation {
-                ForEach(emojiPositions, id: \.self) { position in
+                ForEach(emojiPositions, id: \ .self) { position in
                     EmojiView(xPosition: position)
                 }
             }
@@ -77,6 +94,7 @@ struct StatisticsView: View {
         }
     }
 }
+
 
 // MARK: - Emoji Visning
 struct EmojiView: View {
