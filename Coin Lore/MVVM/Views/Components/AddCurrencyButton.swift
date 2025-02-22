@@ -13,20 +13,10 @@ struct AddCurrencyButton: View {
     
     var body: some View {
         Button(action: action) {
-            HStack {
-                Image(systemName: "plus.circle.fill")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(.blue)
-                
-                Text("Add Currencies")
-                    .font(.headline)
-                    .foregroundColor(.blue)
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-            .shadow(radius: 2)
+            Image(systemName: "plus.circle.fill")
+                .resizable()
+                .frame(width: 50, height: 50)
+                .foregroundColor(.blue)
         }
     }
 }
