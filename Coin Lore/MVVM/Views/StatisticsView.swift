@@ -25,7 +25,8 @@ struct StatisticsView: View {
                             
                             ScrollView {
                                 VStack(alignment: .leading, spacing: 16) {
-                                    ForEach(viewModel.chartData.filter { selectedCurrencies.isEmpty || selectedCurrencies.contains($0.cryptoName) }) { data in
+                                    ForEach(viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) }) { data in
+
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text(data.cryptoName)
                                                 .font(.headline)
@@ -94,25 +95,6 @@ struct StatisticsView: View {
         }
     }
 }
-
-
-// MARK: - Emoji Visning
-struct EmojiView: View {
-    let xPosition: CGFloat
-    @State private var yOffset: CGFloat = -100
-
-    var body: some View {
-        Text("💰")
-            .font(.largeTitle)
-            .position(x: xPosition, y: yOffset)
-            .onAppear {
-                withAnimation(Animation.easeIn(duration: 2).repeatCount(1, autoreverses: false)) {
-                    yOffset = UIScreen.main.bounds.height
-                }
-            }
-    }
-}
-
 
 
 struct BarView: View {
