@@ -8,20 +8,18 @@
 import SwiftUI
 
 struct CurrencySelectionList: View {
-    @Binding var selectedCurrencies: Set<String> // Stores selected cryptocurrencies
-    let availableCurrencies: [String] // List of all possible currencies
+    @ObservedObject var viewModel: StatisticsViewModel // ViewModel now manages data
     var onDone: () -> Void // Callback for when the user finishes selection
-    
-    @State private var sortOrder: Bool = true // true for A-Z, false for Z-A
-    @State private var selectedFilter: FilterOption = .all // Default: show
-    @State private var searchText: String = "" // Stores search input
 
+    @State private var sortOrder: Bool = true // true for A-Z, false for Z-A
+    @State private var selectedFilter: FilterOption = .all // Default: show all
+    @State private var searchText: String = "" // Stores search input
 
     enum FilterOption: String, CaseIterable {
         case all = "All"
         case selected = "Selected"
         case unselected = "Unselected"
-        
+
         var next: FilterOption {
             switch self {
             case .all: return .selected
@@ -29,7 +27,7 @@ struct CurrencySelectionList: View {
             case .unselected: return .all
             }
         }
-        
+
         var icon: String {
             switch self {
             case .all: return "line.3.horizontal.circle"
@@ -40,41 +38,50 @@ struct CurrencySelectionList: View {
     }
 
     var filteredCurrencies: [String] {
-        let sortedList = sortOrder ? availableCurrencies.sorted() : availableCurrencies.sorted(by: >)
-        
+        let sortedList = sortOrder ? viewModel.filteredAvailableCurrencies.sorted() : viewModel.filteredAvailableCurrencies.sorted(by: >)
+
         let filteredList: [String]
         switch selectedFilter {
         case .all:
             filteredList = sortedList
         case .selected:
-            filteredList = sortedList.filter { selectedCurrencies.contains($0) }
+            filteredList = sortedList.filter { viewModel.selectedCurrencies.contains($0) }
         case .unselected:
-            filteredList = sortedList.filter { !selectedCurrencies.contains($0) }
+            filteredList = sortedList.filter { !viewModel.selectedCurrencies.contains($0) }
         }
-        
+
         return filteredList.filter { searchText.isEmpty || $0.localizedCaseInsensitiveContains(searchText) }
     }
-    
+
     var body: some View {
         NavigationView {
             VStack {
                 SearchBar(searchText: $searchText) // 🔍 Integrated Search Bar
-                
-                List(filteredCurrencies, id: \.self) { currency in
-                    HStack {
-                        Text(currency)
-                            .font(.body)
-                        
+
+                if filteredCurrencies.isEmpty {
+                    VStack {
                         Spacer()
-                        
-                        if selectedCurrencies.contains(currency) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.blue)
-                        }
+                        Text("No currencies available")
+                            .foregroundColor(.gray)
+                        Spacer()
                     }
-                    .contentShape(Rectangle()) // Makes the whole row tappable
-                    .onTapGesture {
-                        toggleSelection(currency)
+                } else {
+                    List(filteredCurrencies, id: \.self) { currency in
+                        HStack {
+                            Text(currency)
+                                .font(.body)
+
+                            Spacer()
+
+                            if viewModel.selectedCurrencies.contains(currency) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        .contentShape(Rectangle()) // Makes the whole row tappable
+                        .onTapGesture {
+                            toggleSelection(currency)
+                        }
                     }
                 }
             }
@@ -87,7 +94,7 @@ struct CurrencySelectionList: View {
                         }) {
                             Image(systemName: sortOrder ? "arrow.up" : "arrow.down")
                         }
-                        
+
                         Button(action: {
                             selectedFilter = selectedFilter.next // Cycle through filter options
                         }) {
@@ -101,16 +108,22 @@ struct CurrencySelectionList: View {
                     }
                 }
             }
+            .onAppear {
+                viewModel.fetchStatistics() // Ensure available currencies are loaded
+            }
         }
-    
     }
-    
+
     private func toggleSelection(_ currency: String) {
-        if selectedCurrencies.contains(currency) {
-            selectedCurrencies.remove(currency) // Deselect if already selected
+        var updatedSelection = viewModel.selectedCurrencies // Create a local copy
+
+        if updatedSelection.contains(currency) {
+            updatedSelection.remove(currency) // Deselect if already selected
         } else {
-            selectedCurrencies.insert(currency) // Select if not selected
+            updatedSelection.insert(currency) // Select if not selected
         }
+
+        viewModel.updateSelectedCurrencies(updatedSelection) // Save updated selection
     }
 }
 
@@ -118,8 +131,7 @@ struct CurrencySelectionList: View {
 struct CurrencySelectionList_Previews: PreviewProvider {
     static var previews: some View {
         CurrencySelectionList(
-            selectedCurrencies: .constant(["Bitcoin", "Ethereum"]),
-            availableCurrencies: ["Bitcoin", "Ethereum", "Dogecoin", "Litecoin"],
+            viewModel: StatisticsViewModel(),
             onDone: { print("Selection completed") }
         )
     }

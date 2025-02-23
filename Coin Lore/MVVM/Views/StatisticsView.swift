@@ -5,7 +5,6 @@ struct StatisticsView: View {
     @State private var showAnimation = false
     @State private var emojiPositions: [CGFloat] = []
     @State private var showCurrencySelection = false
-    @State private var selectedCurrencies: Set<String> = []
 
     var body: some View {
         ZStack {
@@ -15,7 +14,7 @@ struct StatisticsView: View {
                         .font(.largeTitle)
                         .bold()
                         .padding(.top, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading) 
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     Group {
                         if viewModel.isLoading {
@@ -25,7 +24,7 @@ struct StatisticsView: View {
                                 .foregroundColor(.red)
                                 .padding()
                         } else {
-                            StatisticsGraphView(cryptos: viewModel.chartData.filter { selectedCurrencies.contains($0.cryptoName) })
+                            StatisticsGraphView(cryptos: viewModel.chartData.filter { viewModel.selectedCurrencies.contains($0.cryptoName) })
                                 .padding()
                         }
                     }
@@ -40,17 +39,13 @@ struct StatisticsView: View {
                 }
             }
             .sheet(isPresented: $showCurrencySelection) {
-                let available = viewModel.cryptoStats.isEmpty ? [] : viewModel.cryptoStats.map { $0.name }
-
                 CurrencySelectionList(
-                    selectedCurrencies: $selectedCurrencies,
-                    availableCurrencies: available,
+                    viewModel: viewModel, // Pass the StatisticsViewModel instance
                     onDone: {
                         showCurrencySelection = false
                     }
                 )
             }
-
 
             // Floating Add Button in Bottom-Right Corner
             VStack {
@@ -63,7 +58,6 @@ struct StatisticsView: View {
                             showCurrencySelection = true
                         }
                     }
-
                     .padding(.bottom, 20) // Adjust to position above the tab bar
                     .padding(.trailing, 20)
                 }
@@ -80,6 +74,9 @@ struct StatisticsView: View {
             if newValue {
                 startEmojiAnimation()
             }
+        }
+        .onChange(of: viewModel.selectedCurrencies) { _ in
+            viewModel.fetchStatistics() // Reload data when selection changes
         }
     }
 
