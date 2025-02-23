@@ -1,10 +1,3 @@
-//
-//  MarketViewModel.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 21/02/2025.
-//
-
 import Foundation
 import SwiftUI
 
@@ -16,7 +9,6 @@ class MarketViewModel: ObservableObject {
     @Published var isAscending: Bool = true // Tracks sorting order
 
     private let coinLoreManager = CoinLoreManager.shared
-    private var sortAscending = true
     private var currentSortKey: SortKey = .rank
     
     enum SortKey {
@@ -28,10 +20,16 @@ class MarketViewModel: ObservableObject {
     
     init() {
         observeCurrencyRateUpdates()
+        fetchTickers()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Convert USD to NOK
     func convertToNOK(usdValue: Double) -> String {
+        guard currencyRate > 0 else { return "N/A" }
         let nokValue = usdValue * currencyRate
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -63,8 +61,8 @@ class MarketViewModel: ObservableObject {
                 case .success(let tickers):
                     self?.cryptoTickers = tickers
                     self?.sortTickers()
-                case .failure(let error):
-                    self?.errorMessage = "Failed to fetch tickers: \(error.localizedDescription)"
+                case .failure:
+                    self?.errorMessage = "Could not retrieve data. Please check your connection."
                 }
             }
         }
@@ -75,21 +73,47 @@ class MarketViewModel: ObservableObject {
             currentSortKey = key
         }
         
-        switch currentSortKey {
-        case .rank:
-            cryptoTickers.sort { isAscending ? $0.rank < $1.rank : $0.rank > $1.rank }
-        case .percentChange1h:
-            cryptoTickers.sort { isAscending ? Double($0.percentChange1h) ?? 0 < Double($1.percentChange1h) ?? 0 : Double($0.percentChange1h) ?? 0 > Double($1.percentChange1h) ?? 0 }
-        case .percentChange24h:
-            cryptoTickers.sort { isAscending ? Double($0.percentChange24h) ?? 0 < Double($1.percentChange24h) ?? 0 : Double($0.percentChange24h) ?? 0 > Double($1.percentChange24h) ?? 0 }
-        case .percentChange7d:
-            cryptoTickers.sort { isAscending ? Double($0.percentChange7d) ?? 0 < Double($1.percentChange7d) ?? 0 : Double($0.percentChange7d) ?? 0 > Double($1.percentChange7d) ?? 0 }
+        cryptoTickers.sort {
+            let value1: Double
+            let value2: Double
+            
+            switch currentSortKey {
+            case .rank:
+                value1 = Double($0.rank)
+                value2 = Double($1.rank)
+            case .percentChange1h:
+                value1 = Double($0.percentChange1h) ?? 0
+                value2 = Double($1.percentChange1h) ?? 0
+            case .percentChange24h:
+                value1 = Double($0.percentChange24h) ?? 0
+                value2 = Double($1.percentChange24h) ?? 0
+            case .percentChange7d:
+                value1 = Double($0.percentChange7d) ?? 0
+                value2 = Double($1.percentChange7d) ?? 0
+            }
+            
+            return isAscending ? value1 < value2 : value1 > value2
         }
     }
     
     func toggleSortOrder() {
-        isAscending.toggle() // Toggle sorting direction
-        sortAscending.toggle()
+        isAscending.toggle()
         sortTickers()
+    }
+    
+    // MARK: - Format Percentage Change
+    func formatPercentageChange(_ value: String) -> String {
+        if let doubleValue = Double(value) {
+            return String(format: "%.2f%%", doubleValue)
+        }
+        return "N/A"
+    }
+    
+    // MARK: - Get Color for Change
+    func getColorForChange(_ value: String) -> Color {
+        if let doubleValue = Double(value) {
+            return doubleValue >= 0 ? .green : .red
+        }
+        return .gray
     }
 }
