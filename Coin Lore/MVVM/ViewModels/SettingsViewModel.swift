@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - Centralized Notification Names
 extension Notification.Name {
@@ -12,42 +13,42 @@ class SettingsViewModel: ObservableObject {
     @Published var emojiThreshold: Int = 10
     @Published var selectedCurrency: String = "NOK" // Default currency
     @Published var exchangeRates: [String: Double] = [:] // Store fetched exchange rates
-    
+
     @Published var useCustomCurrency: Bool = false
     @Published var customCurrencyCode: String = "XYZ"
     @Published var customCurrencyRate: Double = 1.0
-    
-    @Published var isDarkMode: Bool
 
-    
+    @Published var isDarkMode: Bool
+    @Published var isLoading = false
+
     private let currencyManager = CurrencyManager.shared
     private let settingsRepository = SettingsRepository()
     private let statisticsViewModel: StatisticsViewModel
-    
+    private let errorHandler: ErrorHandler // ✅ Centralized error handling
+
     private var lastRealCurrency: String = "NOK" // Store last real currency
-    
-  
-    
+
     // MARK: - Initializer
-    init(statisticsViewModel: StatisticsViewModel) {
+    init(statisticsViewModel: StatisticsViewModel, errorHandler: ErrorHandler) {
         self.statisticsViewModel = statisticsViewModel
+        self.errorHandler = errorHandler
         self.isDarkMode = settingsRepository.getDarkMode()
         loadSettings()
     }
-    
+
     func toggleDarkMode() {
         isDarkMode.toggle()
         settingsRepository.setDarkMode(isDarkMode)
     }
-    
+
     // MARK: - Update Settings
     func updateCurrencyRate(_ newRate: Double) {
         currencyRate = newRate
         settingsRepository.setCurrencyRate(newRate)
-        
+
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": newRate])
     }
-    
+
     // MARK: - Load Settings
     private func loadSettings() {
         self.selectedCurrency = settingsRepository.getSelectedCurrency()
@@ -56,14 +57,14 @@ class SettingsViewModel: ObservableObject {
         self.useCustomCurrency = settingsRepository.getUseCustomCurrency()
         self.customCurrencyCode = settingsRepository.getCustomCurrencyCode()
         self.customCurrencyRate = settingsRepository.getCustomCurrencyRate()
-        
+
         if !useCustomCurrency {
             lastRealCurrency = selectedCurrency
         }
-        
+
         statisticsViewModel.updateEmojiThreshold(self.emojiThreshold)
     }
-    
+
     // MARK: - Update Selected Currency
     func updateSelectedCurrency(_ newCurrency: String) {
         if !useCustomCurrency {
@@ -71,32 +72,36 @@ class SettingsViewModel: ObservableObject {
             lastRealCurrency = newCurrency // Store real currency before switching
             settingsRepository.setSelectedCurrency(newCurrency)
             updateCurrencyRateFromAPI()
-            
+
             NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": newCurrency])
         }
     }
-    
+
     func updateEmojiThreshold(_ newThreshold: Int) {
         emojiThreshold = newThreshold
         settingsRepository.setEmojiThreshold(newThreshold)
         statisticsViewModel.updateEmojiThreshold(newThreshold)
     }
-    
+
     // MARK: - Fetch Exchange Rates
     func fetchExchangeRates() {
+        isLoading = true
+        errorHandler.clearError() // ✅ Clear previous errors before fetching
+
         currencyManager.fetchExchangeRates { [weak self] (result: Result<[String: Double], Error>) in
-            switch result {
-            case .success(let rates):
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success(let rates):
                     self?.exchangeRates = rates
                     self?.updateCurrencyRateFromAPI()
+                case .failure(let error):
+                    self?.errorHandler.setError(error) // ✅ Handle error centrally
                 }
-            case .failure(let error):
-                print("[SettingsViewModel] Failed to fetch exchange rates: \(error.localizedDescription)")
             }
         }
     }
-    
+
     // MARK: - Update Currency Rate Based on Selected Currency
     func updateCurrencyRateFromAPI() {
         if useCustomCurrency {
@@ -105,32 +110,32 @@ class SettingsViewModel: ObservableObject {
             updateCurrencyRate(rate)
         }
     }
-    
+
     // MARK: - Custom Currency Logic
     func updateCustomCurrency() {
         settingsRepository.setUseCustomCurrency(useCustomCurrency)
         settingsRepository.setCustomCurrencyCode(customCurrencyCode)
         settingsRepository.setCustomCurrencyRate(customCurrencyRate)
-        
+
         if useCustomCurrency {
             applyCustomCurrency()
         } else {
             restoreRealCurrency()
         }
     }
-    
+
     private func applyCustomCurrency() {
         currencyRate = customCurrencyRate
         selectedCurrency = customCurrencyCode
-        
+
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": customCurrencyRate])
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": customCurrencyCode])
     }
-    
+
     private func restoreRealCurrency() {
         selectedCurrency = lastRealCurrency // Restore previously selected real currency
         updateCurrencyRateFromAPI()
-        
+
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": lastRealCurrency])
     }
 }

@@ -145,12 +145,4 @@ struct CurrencySelectionList: View {
     }
 }
 
-// Preview
-struct CurrencySelectionList_Previews: PreviewProvider {
-    static var previews: some View {
-        CurrencySelectionList(
-            viewModel: StatisticsViewModel(),
-            onDone: { print("Selection completed") }
-        )
-    }
-}
+

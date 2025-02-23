@@ -14,16 +14,16 @@ class StatisticsViewModel: ObservableObject {
     // MARK: - Dependencies
     private let statisticsRepository = StatisticsRepository()
     @Published var shouldAnimate = false
-    private var emojiThreshold: Int = 10 // Standardverdi, vil bli overskrevet fra SettingsViewModel
+    private var emojiThreshold: Int = 10 // Standard value, updated from SettingsViewModel
 
     @Published var cryptoStats: [CryptoTickerModel] = []
     @Published var isLoading = false
-    @Published var errorMessage: String?
-    
+
     @Published var availableCurrencies: [String] = [] // List of all possible currencies
     @Published var selectedCurrencies: Set<String> = [] // Selected currencies from user
 
     private let coinLoreManager = CoinLoreManager.shared
+    private let errorHandler: ErrorHandler // ✅ Centralized error handling
 
     private var sortAscending = true
     private var currentSortKey: SortKey = .cryptoName
@@ -36,16 +36,18 @@ class StatisticsViewModel: ObservableObject {
     }
 
     // MARK: - Initialization
-    init() {
+    init(errorHandler: ErrorHandler) {
+        self.errorHandler = errorHandler
         loadSelectedCurrencies()
     }
 
     // MARK: - Fetching Data with Change Detection
     func fetchStatistics() {
         print("📡 fetchStatistics() called, setting isLoading = true")
+
         DispatchQueue.main.async {
             self.isLoading = true
-            self.errorMessage = nil
+            self.errorHandler.clearError() // ✅ Clear previous errors before fetching
         }
 
         print("🔄 Calling CoinLoreManager.fetchTickers()")
@@ -53,6 +55,7 @@ class StatisticsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 print("✅ Received response in fetchTickers closure")
 
+                self?.isLoading = false
                 switch result {
                 case .success(let tickers):
                     print("📊 Successfully fetched \(tickers.count) tickers")
@@ -79,14 +82,12 @@ class StatisticsViewModel: ObservableObject {
                     // Update UI
                     self?.cryptoStats = filteredTickers
                     self?.sortData()
-                    self?.isLoading = false
                     self?.objectWillChange.send()
                     print("🎯 cryptoStats updated with \(self?.cryptoStats.count ?? 0) items")
 
                 case .failure(let error):
                     print("❌ Error fetching statistics: \(error.localizedDescription)")
-                    self?.errorMessage = "Failed to fetch statistics: \(error.localizedDescription)"
-                    self?.isLoading = false
+                    self?.errorHandler.setError(error) // ✅ Handle error centrally
                 }
             }
         }

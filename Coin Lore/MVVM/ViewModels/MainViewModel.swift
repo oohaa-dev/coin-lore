@@ -4,7 +4,6 @@ import SwiftUI
 class MainViewModel: ObservableObject {
     @Published var marketData: GlobalMarketModel?
     @Published var isLoading = false
-    @Published var errorMessage: String?
     @Published var isStaleData = false
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
     @Published var selectedCurrency: String = "NOK" // Default currency, updated dynamically
@@ -15,7 +14,10 @@ class MainViewModel: ObservableObject {
     private let settingsRepository = SettingsRepository()
     private var lastFetchTime: Date?
     
-    init() {
+    private let errorHandler: ErrorHandler
+
+    init(errorHandler: ErrorHandler) {
+        self.errorHandler = errorHandler
         loadSettings()
         observeCurrencyUpdates()
         fetchMarketData()
@@ -29,29 +31,39 @@ class MainViewModel: ObservableObject {
             self.selectedCurrency = settingsRepository.getCustomCurrencyCode()
             self.currencyRate = settingsRepository.getCustomCurrencyRate()
         } else {
-            self.selectedCurrency = settingsRepository.getSelectedCurrency() 
+            self.selectedCurrency = settingsRepository.getSelectedCurrency()
             self.currencyRate = settingsRepository.getCurrencyRate()
         }
     }
 
-
     // MARK: - Fetch Market Data
     func fetchMarketData() {
         isLoading = true
-        errorMessage = nil
-        
+        errorHandler.clearError() // ✅ Clear errors before fetching
+
         coinLoreManager.fetchGlobalMarketData { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                guard let self = self else { return }
+                self.isLoading = false
+
                 switch result {
                 case .success(let data):
                     let now = Date()
-                    self?.isStaleData = self?.lastFetchTime != nil  // Mark data stale if it was previously loaded
-                    self?.marketData = data
-                    self?.lastFetchTime = now
-                    self?.lastUpdated = self?.formatLastUpdated(date: now) ?? "-"
-                case .failure:
-                    self?.errorMessage = "Could not retrieve market data. Please check your connection."
+
+                    // ✅ Data is stale if it's older than 5 minutes
+                    if let lastFetch = self.lastFetchTime {
+                        let fiveMinutesAgo = Date().addingTimeInterval(-300)
+                        self.isStaleData = lastFetch < fiveMinutesAgo
+                    } else {
+                        self.isStaleData = false
+                    }
+
+                    self.marketData = data
+                    self.lastFetchTime = now
+                    self.lastUpdated = self.formatLastUpdated(date: now)
+                    
+                case .failure(let error):
+                    self.errorHandler.setError(error) // ✅ Handle error centrally
                 }
             }
         }

@@ -1,11 +1,9 @@
 import Foundation
 import SwiftUI
 
-
 class MarketViewModel: ObservableObject {
     @Published var cryptoTickers: [CryptoTickerModel] = []
     @Published var isLoading = false
-    @Published var errorMessage: String?
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
     @Published var selectedCurrency: String = "NOK" // Default currency, updated dynamically
     @Published var useCustomCurrency: Bool = false // Track if custom currency is used
@@ -14,24 +12,26 @@ class MarketViewModel: ObservableObject {
     private let coinLoreManager = CoinLoreManager.shared
     private let settingsRepository = SettingsRepository()
     private var currentSortKey: SortKey = .rank
-    
+    private let errorHandler: ErrorHandler
+
     enum SortKey {
         case rank
         case percentChange1h
         case percentChange24h
         case percentChange7d
     }
-    
-    init() {
+
+    init(errorHandler: ErrorHandler) {
+        self.errorHandler = errorHandler
         loadSettings()
         observeCurrencyUpdates()
         fetchTickers()
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-    
+
     // MARK: - Load Settings
     private func loadSettings() {
         self.useCustomCurrency = settingsRepository.getUseCustomCurrency()
@@ -44,13 +44,13 @@ class MarketViewModel: ObservableObject {
             self.currencyRate = settingsRepository.getCurrencyRate()
         }
     }
-    
+
     // MARK: - Observe Currency Updates
     private func observeCurrencyUpdates() {
         NotificationCenter.default.addObserver(self, selector: #selector(updateCurrencyRate(_:)), name: .currencyRateUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateSelectedCurrency(_:)), name: .selectedCurrencyUpdated, object: nil)
     }
-    
+
     @objc private func updateCurrencyRate(_ notification: Notification) {
         if let newRate = notification.userInfo?["currencyRate"] as? Double {
             DispatchQueue.main.async {
@@ -58,7 +58,7 @@ class MarketViewModel: ObservableObject {
             }
         }
     }
-    
+
     @objc private func updateSelectedCurrency(_ notification: Notification) {
         if let newCurrency = notification.userInfo?["selectedCurrency"] as? String {
             DispatchQueue.main.async {
@@ -66,7 +66,7 @@ class MarketViewModel: ObservableObject {
             }
         }
     }
-    
+
     // MARK: - Convert USD to Selected Currency
     func convertToSelectedCurrency(usdValue: Double) -> String {
         guard currencyRate > 0 else { return "N/A" }
@@ -76,34 +76,38 @@ class MarketViewModel: ObservableObject {
         formatter.currencyCode = selectedCurrency
         return formatter.string(from: NSNumber(value: convertedValue)) ?? "\(convertedValue) \(selectedCurrency)"
     }
-    
+
+    // MARK: - Fetch Crypto Tickers
     func fetchTickers() {
         isLoading = true
-        errorMessage = nil
-        
+        errorHandler.clearError() // ✅ Clear previous errors before fetching new data
+
         coinLoreManager.fetchTickers { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                guard let self = self else { return }
+                self.isLoading = false
+
                 switch result {
                 case .success(let tickers):
-                    self?.cryptoTickers = tickers
-                    self?.sortTickers()
-                case .failure:
-                    self?.errorMessage = "Could not retrieve data. Please check your connection."
+                    self.cryptoTickers = tickers
+                    self.sortTickers()
+                case .failure(let error):
+                    self.errorHandler.setError(error) // ✅ Handle error centrally
                 }
             }
         }
     }
-    
+
+    // MARK: - Sorting Functions
     func sortTickers(by key: SortKey? = nil) {
         if let key = key {
             currentSortKey = key
         }
-        
+
         cryptoTickers.sort {
             let value1: Double
             let value2: Double
-            
+
             switch currentSortKey {
             case .rank:
                 value1 = Double($0.rank)
@@ -118,16 +122,16 @@ class MarketViewModel: ObservableObject {
                 value1 = Double($0.percentChange7d) ?? 0
                 value2 = Double($1.percentChange7d) ?? 0
             }
-            
+
             return isAscending ? value1 < value2 : value1 > value2
         }
     }
-    
+
     func toggleSortOrder() {
         isAscending.toggle()
         sortTickers()
     }
-    
+
     // MARK: - Format Percentage Change
     func formatPercentageChange(_ value: String) -> String {
         if let doubleValue = Double(value) {
@@ -135,7 +139,7 @@ class MarketViewModel: ObservableObject {
         }
         return "N/A"
     }
-    
+
     // MARK: - Get Color for Change
     func getColorForChange(_ value: String) -> Color {
         if let doubleValue = Double(value) {

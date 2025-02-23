@@ -2,10 +2,18 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
+    @ObservedObject private var errorHandler: ErrorHandler
+
+    init(viewModel: SettingsViewModel, errorHandler: ErrorHandler) {
+        self.viewModel = viewModel
+        self.errorHandler = errorHandler
+    }
 
     var body: some View {
         NavigationView {
             Form {
+       
+
                 // MARK: - Currency Selection
                 Section(header: Text("Valuta")) {
                     Picker("Velg valuta", selection: $viewModel.selectedCurrency) {
@@ -13,9 +21,9 @@ struct SettingsView: View {
                             Text(currency).tag(currency)
                         }
                     }
-                    .pickerStyle(MenuPickerStyle()) // Makes it a dropdown menu
+                    .pickerStyle(MenuPickerStyle())
                     .onChange(of: viewModel.selectedCurrency) { newCurrency in
-                        viewModel.updateSelectedCurrency(newCurrency) // 🔥 Save selection + update rate
+                        viewModel.updateSelectedCurrency(newCurrency)
                     }
 
                     HStack {
@@ -69,14 +77,14 @@ struct SettingsView: View {
                 Section(header: Text("Utseende")) {
                     Toggle("Mørk modus", isOn: $viewModel.isDarkMode)
                         .onChange(of: viewModel.isDarkMode) { _ in
-                            viewModel.toggleDarkMode() // 🔥 Now calls ViewModel instead of modifying UI directly
+                            viewModel.toggleDarkMode()
                         }
                 }
-
             }
             .navigationTitle("Innstillinger")
             .onAppear {
-                viewModel.fetchExchangeRates() // Fetch rates when view appears
+                errorHandler.clearError() // ✅ Clear old errors before fetching
+                viewModel.fetchExchangeRates()
             }
         }
     }

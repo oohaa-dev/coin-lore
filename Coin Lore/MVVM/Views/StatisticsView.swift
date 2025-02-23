@@ -2,9 +2,15 @@ import SwiftUI
 
 struct StatisticsView: View {
     @ObservedObject var viewModel: StatisticsViewModel
+    @ObservedObject private var errorHandler: ErrorHandler
     @State private var showAnimation = false
     @State private var emojiPositions: [CGFloat] = []
     @State private var showCurrencySelection = false
+
+    init(viewModel: StatisticsViewModel, errorHandler: ErrorHandler) {
+        self.viewModel = viewModel
+        self.errorHandler = errorHandler
+    }
 
     var body: some View {
         ZStack {
@@ -17,24 +23,27 @@ struct StatisticsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Group {
-                        if viewModel.isLoading {
+                        // ✅ Centralized Error Handling
+                        if let error = errorHandler.currentError as? LocalizedError {
+                            ErrorView(message: error.errorDescription ?? "An unknown error occurred.")
+                        } else if let error = errorHandler.currentError {
+                            ErrorView(message: error.localizedDescription)
+                        } else if viewModel.isLoading {
                             ProgressView("Loading statistics...")
-                        } else if let errorMessage = viewModel.errorMessage {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .padding()
                         } else {
                             StatisticsGraphView(cryptos: viewModel.chartData.filter { viewModel.selectedCurrencies.contains($0.cryptoName) })
                                 .padding()
                         }
                     }
                     .refreshable {
+                        errorHandler.clearError() // ✅ Clear errors on refresh
                         viewModel.fetchStatistics()
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
                 .navigationBarHidden(true)
                 .onAppear {
+                    errorHandler.clearError() // ✅ Clear old errors before fetching
                     viewModel.fetchStatistics()
                 }
             }
@@ -53,7 +62,8 @@ struct StatisticsView: View {
                 HStack {
                     Spacer()
                     AddCurrencyButton {
-                        viewModel.fetchStatistics() // Ensure fresh data before showing
+                        errorHandler.clearError() // ✅ Ensure no old errors persist
+                        viewModel.fetchStatistics() // Fetch fresh data before showing
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Slight delay for UI update
                             showCurrencySelection = true
                         }
@@ -63,9 +73,9 @@ struct StatisticsView: View {
                 }
             }
 
-            // 💰 Emoji-animasjon
+            // 💰 Emoji Animation
             if showAnimation {
-                ForEach(emojiPositions, id: \ .self) { position in
+                ForEach(emojiPositions, id: \.self) { position in
                     EmojiView(xPosition: position)
                 }
             }
@@ -80,15 +90,15 @@ struct StatisticsView: View {
         }
     }
 
-    // MARK: - Start Emoji Animasjon
+    // MARK: - Start Emoji Animation
     private func startEmojiAnimation() {
-        guard !showAnimation else { return } // Unngå at animasjonen starter flere ganger
+        guard !showAnimation else { return } // Prevent multiple animations
 
-        // Generer tilfeldige startposisjoner for emojiene
+        // Generate random start positions for emojis
         emojiPositions = (0..<10).map { _ in CGFloat.random(in: 0...UIScreen.main.bounds.width) }
         showAnimation = true
 
-        // Stopp animasjonen etter 3 sekunder
+        // Stop the animation after 3 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation {
                 showAnimation = false

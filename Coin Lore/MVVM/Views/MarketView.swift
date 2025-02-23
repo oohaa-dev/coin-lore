@@ -1,19 +1,22 @@
 import SwiftUI
 
 struct MarketView: View {
-    @StateObject private var viewModel = MarketViewModel()
+    @StateObject private var viewModel: MarketViewModel
+    @ObservedObject private var errorHandler: ErrorHandler
     @State private var searchText = ""
     @State private var selectedSortKey: MarketViewModel.SortKey = .rank
+
+    init(errorHandler: ErrorHandler) {
+        _viewModel = StateObject(wrappedValue: MarketViewModel(errorHandler: errorHandler))
+        self.errorHandler = errorHandler
+    }
 
     var body: some View {
         NavigationView {
             VStack {
-                if let errorMessage = viewModel.errorMessage {
-                    ErrorView(message: errorMessage)
-                }
-                
+         
                 SearchBar(searchText: $searchText)
-                
+
                 // Sorting Controls
                 HStack {
                     Picker("Sort By", selection: $selectedSortKey) {
@@ -26,7 +29,7 @@ struct MarketView: View {
                     .onChange(of: selectedSortKey) { newValue in
                         viewModel.sortTickers(by: newValue)
                     }
-                    
+
                     Button(action: {
                         viewModel.toggleSortOrder()
                     }) {
@@ -36,7 +39,7 @@ struct MarketView: View {
                     }
                 }
                 .padding(.horizontal)
-                
+
                 if viewModel.isLoading {
                     LoadingView()
                 } else {
@@ -44,7 +47,7 @@ struct MarketView: View {
                         LazyVStack(spacing: 10) {
                             ForEach(viewModel.cryptoTickers.filter {
                                 searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText)
-                            }, id: \ .id) { ticker in
+                            }, id: \.id) { ticker in
                                 NavigationLink(destination: DetailsView(cryptoID: ticker.id)) {
                                     CryptoCardView(ticker: ticker, viewModel: viewModel)
                                 }
@@ -53,6 +56,7 @@ struct MarketView: View {
                         .padding(.horizontal)
                     }
                     .refreshable {
+                        errorHandler.clearError() // ✅ Clear errors on refresh
                         viewModel.fetchTickers()
                     }
                 }
@@ -67,19 +71,6 @@ struct MarketView: View {
 
 // MARK: - Subviews
 
-struct ErrorView: View {
-    let message: String
-    var body: some View {
-        Text(message)
-            .foregroundColor(.red)
-            .font(.callout)
-            .padding()
-            .background(Color.red.opacity(0.1))
-            .cornerRadius(8)
-            .padding()
-    }
-}
-
 struct LoadingView: View {
     var body: some View {
         VStack {
@@ -93,19 +84,19 @@ struct LoadingView: View {
 struct CryptoCardView: View {
     let ticker: CryptoTickerModel
     let viewModel: MarketViewModel
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(ticker.name)
                     .font(.headline)
-                
+
                 Text(viewModel.convertToSelectedCurrency(usdValue: Double(ticker.priceUSD) ?? 0.0))
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
             Spacer()
-            
+
             Text(viewModel.formatPercentageChange(ticker.percentChange24h))
                 .font(.subheadline)
                 .bold()
