@@ -45,7 +45,7 @@ struct MarketView: View {
                             ForEach(viewModel.cryptoTickers.filter {
                                 searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText)
                             }, id: \ .id) { ticker in
-                                NavigationLink(destination: Text("Detail View for \(ticker.name)")) {
+                                NavigationLink(destination: DetailsView(cryptoID: ticker.id)) {
                                     CryptoCardView(ticker: ticker, viewModel: viewModel)
                                 }
                             }

@@ -99,4 +99,46 @@ class CoinLoreManager {
             }
         }.resume()
     }
+    
+    func fetchCryptoDetails(id: String, completion: @escaping (Result<CryptoDetailsModel, Error>) -> Void) {
+        let urlString = "\(baseURL)/ticker/?id=\(id)"
+        guard let url = URL(string: urlString) else {
+            print("[CoinLoreManager] Invalid URL: \(urlString)")
+            completion(.failure(NSError(domain: "Invalid URL", code: 400, userInfo: nil)))
+            return
+        }
+        
+        session.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("[CoinLoreManager] Network error: \(error.localizedDescription)")
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                print("[CoinLoreManager] No data received from API")
+                completion(.failure(NSError(domain: "No data received", code: 500, userInfo: nil)))
+                return
+            }
+            
+            do {
+                let decodedArray = try JSONDecoder().decode([CryptoDetailsModel].self, from: data)
+                if let details = decodedArray.first {
+                    DispatchQueue.main.async {
+                        completion(.success(details))
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(.failure(NSError(domain: "No data found", code: 404, userInfo: nil)))
+                    }
+                }
+            } catch {
+                print("[CoinLoreManager] Decoding error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
+    }
+
 }
