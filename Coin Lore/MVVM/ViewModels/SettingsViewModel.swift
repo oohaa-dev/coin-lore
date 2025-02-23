@@ -17,16 +17,27 @@ class SettingsViewModel: ObservableObject {
     @Published var customCurrencyCode: String = "XYZ"
     @Published var customCurrencyRate: Double = 1.0
     
+    @Published var isDarkMode: Bool
+
+    
     private let currencyManager = CurrencyManager.shared
     private let settingsRepository = SettingsRepository()
     private let statisticsViewModel: StatisticsViewModel
     
     private var lastRealCurrency: String = "NOK" // Store last real currency
     
+  
+    
     // MARK: - Initializer
     init(statisticsViewModel: StatisticsViewModel) {
         self.statisticsViewModel = statisticsViewModel
+        self.isDarkMode = settingsRepository.getDarkMode()
         loadSettings()
+    }
+    
+    func toggleDarkMode() {
+        isDarkMode.toggle()
+        settingsRepository.setDarkMode(isDarkMode)
     }
     
     // MARK: - Update Settings

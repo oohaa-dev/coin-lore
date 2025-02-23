@@ -49,7 +49,7 @@ struct MainView: View {
                 viewModel.fetchMarketData()
             }
             .navigationTitle("Global Market")
-            .background(LinearGradient(gradient: Gradient(colors: [Color(.systemGray6), Color.white]), startPoint: .top, endPoint: .bottom))
+            .background(Color(.systemBackground)) // 🔥 Fix: Uses system background color (adapts to dark mode)
             .onAppear {
                 viewModel.fetchMarketData()
             }

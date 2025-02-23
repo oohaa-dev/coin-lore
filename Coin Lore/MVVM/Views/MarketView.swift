@@ -30,7 +30,7 @@ struct MarketView: View {
                     Button(action: {
                         viewModel.toggleSortOrder()
                     }) {
-                        Image(systemName: viewModel.isAscending ? "arrow.up" : "arrow.down")
+                        Image(systemName: viewModel.isAscending ? "arrow.down" : "arrow.up")
                             .font(.title2)
                             .foregroundColor(.blue)
                     }
@@ -112,6 +112,6 @@ struct CryptoCardView: View {
                 .foregroundColor(viewModel.getColorForChange(ticker.percentChange24h))
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white).shadow(radius: 3))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)).shadow(radius: 3))
     }
 }

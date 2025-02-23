@@ -3,6 +3,7 @@ import SwiftUI
 struct TabsView: View {
     @StateObject private var statisticsViewModel = StatisticsViewModel()
     @StateObject private var settingsViewModel: SettingsViewModel
+    @AppStorage("isDarkMode") private var isDarkMode: Bool = false // Persist dark mode setting
 
     init() {
         let statsVM = StatisticsViewModel()
@@ -36,6 +37,7 @@ struct TabsView: View {
                     Text("Innstillinger")
                 }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light) // Apply theme globally in TabsView
     }
 }
 

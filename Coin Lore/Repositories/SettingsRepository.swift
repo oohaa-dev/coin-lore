@@ -12,6 +12,18 @@ class SettingsRepository {
         static let useCustomCurrency = "useCustomCurrency"
         static let customCurrencyCode = "customCurrencyCode"
         static let customCurrencyRate = "customCurrencyRate"
+        static let isDarkMode = "isDarkMode" // 🔥 Add key for dark mode setting
+
+    }
+    
+
+    // MARK: - Dark Mode
+    func getDarkMode() -> Bool {
+        return userDefaults.bool(forKey: Keys.isDarkMode)
+    }
+
+    func setDarkMode(_ value: Bool) {
+        userDefaults.set(value, forKey: Keys.isDarkMode)
     }
     
     // MARK: - Selected Currency

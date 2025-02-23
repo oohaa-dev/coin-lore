@@ -65,6 +65,14 @@ struct SettingsView: View {
                         .foregroundColor(.gray)
                 }
 
+                // MARK: - Dark Mode Toggle
+                Section(header: Text("Utseende")) {
+                    Toggle("Mørk modus", isOn: $viewModel.isDarkMode)
+                        .onChange(of: viewModel.isDarkMode) { _ in
+                            viewModel.toggleDarkMode() // 🔥 Now calls ViewModel instead of modifying UI directly
+                        }
+                }
+
             }
             .navigationTitle("Innstillinger")
             .onAppear {
