@@ -5,7 +5,6 @@
 //  Created by Ola Oldernes Hårstad on 22/02/2025.
 //
 
-
 import SwiftUI
 
 struct MultiTimeframeToggleView: View {
@@ -13,7 +12,7 @@ struct MultiTimeframeToggleView: View {
 
     var body: some View {
         HStack {
-            ForEach(Timeframe.allCases, id: \.self) { timeframe in
+            ForEach(Timeframe.allCases) { timeframe in
                 Button(action: {
                     if selectedTimeframes.contains(timeframe) {
                         selectedTimeframes.remove(timeframe)
@@ -24,12 +23,26 @@ struct MultiTimeframeToggleView: View {
                     Text(timeframe.rawValue)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(selectedTimeframes.contains(timeframe) ? Color.blue.opacity(0.2) : Color.gray.opacity(0.2))
+                        .background(selectedTimeframes.contains(timeframe) ? backgroundColor(for: timeframe) : Color.gray.opacity(0.2))
+                        .foregroundColor(.white)
                         .cornerRadius(10)
                 }
             }
         }
         .padding()
+    }
+
+    private func backgroundColor(for timeframe: Timeframe) -> Color {
+        switch timeframe {
+        case .oneHour:
+            return Color(hex: "006FFE")
+        case .twentyFourHour:
+            return Color(hex: "FF8A09")
+        case .sevenDays:
+            return Color(hex: "A548D9")
+        default:
+            return Color.gray.opacity(0.2)
+        }
     }
 }
 
@@ -39,5 +52,24 @@ struct MultiTimeframeToggleView_Previews: PreviewProvider {
         MultiTimeframeToggleView(selectedTimeframes: .constant([.oneHour, .twentyFourHour, .sevenDays]))
             .previewLayout(.sizeThatFits)
             .padding()
+    }
+}
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: Double
+        if hex.count == 6 {
+            r = Double((int >> 16) & 0xFF) / 255.0
+            g = Double((int >> 8) & 0xFF) / 255.0
+            b = Double(int & 0xFF) / 255.0
+        } else {
+            r = 0
+            g = 0
+            b = 0
+        }
+        self.init(red: r, green: g, blue: b)
     }
 }

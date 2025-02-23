@@ -6,34 +6,20 @@ struct StatisticsGraphView: View {
     var cryptos: [ChartData]
 
     var body: some View {
-        GeometryReader { geometry in // ✅ Get available screen height
-            VStack {
-                // Timeframe Selection
-                MultiTimeframeToggleView(selectedTimeframes: $selectedTimeframes)
-
-                // Graph Title
-                Text("Cryptocurrency Performance")
-                    .font(.headline)
-                    .padding(.bottom, 10)
-
-                // Scrollable Chart Container (Only If Needed)
-                let chartHeight = CGFloat(cryptos.count) * 50
-                if chartHeight > geometry.size.height { // ✅ Only scroll if necessary
-                    ScrollView(.vertical) {
-                        VStack {
-                            chartView
-                        }
-                        .padding()
-                    }
-                } else {
-                    VStack {
-                        chartView
-                    }
-                    .frame(height: chartHeight) // ✅ Allow full expansion
+        VStack(alignment: .leading, spacing: 10) { // ✅ Ensuring top alignment
+            // Timeframe Selection
+            MultiTimeframeToggleView(selectedTimeframes: $selectedTimeframes)
+            
+            ScrollView{
+                VStack {
+                    
+                    chartView
                 }
+                .frame(height: CGFloat(cryptos.count) * 50) // ✅ Ensuring correct height
             }
-            .frame(height: geometry.size.height) // ✅ Expand to available height
         }
+        .frame(maxWidth: .infinity, alignment: .topLeading) // ✅ Keeping content at the top
+        .padding(.horizontal)
     }
 
     // Chart View
@@ -71,10 +57,9 @@ struct StatisticsGraphView: View {
             }
         }
         .chartXScale(domain: adjustedXAxisRange)
-        .frame(height: CGFloat(cryptos.count) * 50) // ✅ Expand dynamically
     }
 
-    // Adjusted X-Axis Range to Keep 0% Centered and Fit Largest Bar
+    // Adjusted X-Axis Range
     private var adjustedXAxisRange: ClosedRange<Double> {
         let maxChange = filteredData.flatMap { crypto in
             selectedTimeframes.map { timeframe in
@@ -87,34 +72,12 @@ struct StatisticsGraphView: View {
         return -maxChange...maxChange
     }
 
-    // Filtered Data Based on Selected Timeframes
+    // Filtered Data
     private var filteredData: [ChartData] {
         cryptos
     }
 }
 
-// MARK: - Timeframe Enum
-enum Timeframe: String, CaseIterable, Hashable {
-    case oneHour = "1h"
-    case twentyFourHour = "24h"
-    case sevenDays = "7d"
-
-    var sortOrder: Int {
-        switch self {
-        case .oneHour: return 0
-        case .twentyFourHour: return 1
-        case .sevenDays: return 2
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .oneHour: return .blue
-        case .twentyFourHour: return .orange
-        case .sevenDays: return .purple
-        }
-    }
-}
 
 // MARK: - SwiftUI Preview
 struct StatisticsGraphView_Previews: PreviewProvider {

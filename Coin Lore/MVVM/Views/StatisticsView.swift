@@ -15,7 +15,7 @@ struct StatisticsView: View {
                         .font(.largeTitle)
                         .bold()
                         .padding(.top, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading) // Ensure it aligns to the top-left
+                        .frame(maxWidth: .infinity, alignment: .leading) 
 
                     Group {
                         if viewModel.isLoading {
@@ -30,14 +30,12 @@ struct StatisticsView: View {
                         }
                     }
                     .refreshable {
-                        print("🔄 StatisticsView: Refreshing statistics")
                         viewModel.fetchStatistics()
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
                 .navigationBarHidden(true)
                 .onAppear {
-                    print("👀 StatisticsView: onAppear triggered, fetching statistics")
                     viewModel.fetchStatistics()
                 }
             }
