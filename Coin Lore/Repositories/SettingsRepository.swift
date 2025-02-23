@@ -28,11 +28,13 @@ class SettingsRepository {
     
     // MARK: - Selected Currency
     func getSelectedCurrency() -> String {
-        if getUseCustomCurrency() {
-            return getCustomCurrencyCode() // Use fake currency if toggled on
+        let useCustom = getUseCustomCurrency() // Ensure this defaults to false
+        if useCustom {
+            return getCustomCurrencyCode()
         }
-        return userDefaults.string(forKey: Keys.lastRealCurrency) ?? "NOK" // Restore last real currency
+        return userDefaults.string(forKey: Keys.lastRealCurrency) ?? "NOK"
     }
+
 
     func setSelectedCurrency(_ currency: String) {
         if !getUseCustomCurrency() {

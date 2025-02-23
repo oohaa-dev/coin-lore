@@ -87,8 +87,18 @@ struct CurrencySelectionList: View {
             }
             .navigationTitle("Select Currencies")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItemGroup(placement: .navigationBarLeading) {
                     HStack {
+                        Button(action: selectAllCurrencies) {
+                            Image(systemName: "checkmark.circle")
+                        }
+                        .help("Select All")
+
+                        Button(action: clearAllCurrencies) {
+                            Image(systemName: "xmark.circle")
+                        }
+                        .help("Clear All")
+
                         Button(action: {
                             sortOrder.toggle() // Toggle sorting order
                         }) {
@@ -124,6 +134,14 @@ struct CurrencySelectionList: View {
         }
 
         viewModel.updateSelectedCurrencies(updatedSelection) // Save updated selection
+    }
+
+    private func selectAllCurrencies() {
+        viewModel.updateSelectedCurrencies(Set(viewModel.filteredAvailableCurrencies)) // Select all available
+    }
+
+    private func clearAllCurrencies() {
+        viewModel.updateSelectedCurrencies([]) // Clear all selections
     }
 }
 

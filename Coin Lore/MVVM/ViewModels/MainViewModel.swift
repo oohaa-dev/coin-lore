@@ -24,9 +24,16 @@ class MainViewModel: ObservableObject {
     // MARK: - Load Settings
     private func loadSettings() {
         self.useCustomCurrency = settingsRepository.getUseCustomCurrency()
-        self.selectedCurrency = settingsRepository.getCustomCurrencyCode()
-        self.currencyRate = settingsRepository.getCustomCurrencyRate()
+
+        if self.useCustomCurrency {
+            self.selectedCurrency = settingsRepository.getCustomCurrencyCode()
+            self.currencyRate = settingsRepository.getCustomCurrencyRate()
+        } else {
+            self.selectedCurrency = settingsRepository.getSelectedCurrency() 
+            self.currencyRate = settingsRepository.getCurrencyRate()
+        }
     }
+
 
     // MARK: - Fetch Market Data
     func fetchMarketData() {
