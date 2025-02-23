@@ -13,7 +13,9 @@ struct CurrencySelectionList: View {
     var onDone: () -> Void // Callback for when the user finishes selection
     
     @State private var sortOrder: Bool = true // true for A-Z, false for Z-A
-    @State private var selectedFilter: FilterOption = .all // Default: show all
+    @State private var selectedFilter: FilterOption = .all // Default: show
+    @State private var searchText: String = "" // Stores search input
+
 
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -40,33 +42,40 @@ struct CurrencySelectionList: View {
     var filteredCurrencies: [String] {
         let sortedList = sortOrder ? availableCurrencies.sorted() : availableCurrencies.sorted(by: >)
         
+        let filteredList: [String]
         switch selectedFilter {
         case .all:
-            return sortedList
+            filteredList = sortedList
         case .selected:
-            return sortedList.filter { selectedCurrencies.contains($0) }
+            filteredList = sortedList.filter { selectedCurrencies.contains($0) }
         case .unselected:
-            return sortedList.filter { !selectedCurrencies.contains($0) }
+            filteredList = sortedList.filter { !selectedCurrencies.contains($0) }
         }
+        
+        return filteredList.filter { searchText.isEmpty || $0.localizedCaseInsensitiveContains(searchText) }
     }
     
     var body: some View {
         NavigationView {
-            List(filteredCurrencies, id: \.self) { currency in
-                HStack {
-                    Text(currency)
-                        .font(.body)
-                    
-                    Spacer()
-                    
-                    if selectedCurrencies.contains(currency) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.blue)
+            VStack {
+                SearchBar(searchText: $searchText) // 🔍 Integrated Search Bar
+                
+                List(filteredCurrencies, id: \.self) { currency in
+                    HStack {
+                        Text(currency)
+                            .font(.body)
+                        
+                        Spacer()
+                        
+                        if selectedCurrencies.contains(currency) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.blue)
+                        }
                     }
-                }
-                .contentShape(Rectangle()) // Makes the whole row tappable
-                .onTapGesture {
-                    toggleSelection(currency)
+                    .contentShape(Rectangle()) // Makes the whole row tappable
+                    .onTapGesture {
+                        toggleSelection(currency)
+                    }
                 }
             }
             .navigationTitle("Select Currencies")
@@ -93,6 +102,7 @@ struct CurrencySelectionList: View {
                 }
             }
         }
+    
     }
     
     private func toggleSelection(_ currency: String) {
