@@ -7,9 +7,11 @@ class MainViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isStaleData = false
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
+    @Published var lastUpdated: String = "-"  // Stores last update time
 
     private let coinLoreManager = CoinLoreManager.shared
-
+    private var lastFetchTime: Date?
+    
     init() {
         observeCurrencyRateUpdates()
         fetchMarketData()
@@ -25,16 +27,25 @@ class MainViewModel: ObservableObject {
                 self?.isLoading = false
                 switch result {
                 case .success(let data):
-                    // Check if data is stale (if already loaded)
-                    self?.isStaleData = (self?.marketData != nil)
+                    let now = Date()
+                    self?.isStaleData = self?.lastFetchTime != nil  // Mark data stale if it was previously loaded
                     self?.marketData = data
-                case .failure(let error):
-                    self?.errorMessage = "Failed to fetch data: \(error.localizedDescription)"
+                    self?.lastFetchTime = now
+                    self?.lastUpdated = self?.formatLastUpdated(date: now) ?? "-"
+                case .failure:
+                    self?.errorMessage = "Could not retrieve market data. Please check your connection."
                 }
             }
         }
     }
 
+    // MARK: - Format Last Updated Time
+    private func formatLastUpdated(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return "Last updated: " + formatter.string(from: date)
+    }
+    
     // MARK: - Observe Currency Rate Updates
     private func observeCurrencyRateUpdates() {
         NotificationCenter.default.addObserver(self, selector: #selector(updateCurrencyRate(_:)), name: .currencyRateUpdated, object: nil)
@@ -47,13 +58,12 @@ class MainViewModel: ObservableObject {
             }
         }
     }
-
+    
     // MARK: - Convert USD to NOK
     func convertToNOK(usdValue: Double) -> String {
+        guard currencyRate > 0 else { return "N/A" }
         let nokValue = usdValue * currencyRate
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "NOK"
-        return formatter.string(from: NSNumber(value: nokValue)) ?? "\(nokValue) kr"
+        return NumberFormatterUtility.format(nokValue, currency: "NOK")
     }
+
 }
