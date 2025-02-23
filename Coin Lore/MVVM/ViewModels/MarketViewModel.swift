@@ -1,15 +1,18 @@
 import Foundation
 import SwiftUI
 
+
 class MarketViewModel: ObservableObject {
     @Published var cryptoTickers: [CryptoTickerModel] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
     @Published var selectedCurrency: String = "NOK" // Default currency, updated dynamically
+    @Published var useCustomCurrency: Bool = false // Track if custom currency is used
     @Published var isAscending: Bool = true // Tracks sorting order
 
     private let coinLoreManager = CoinLoreManager.shared
+    private let settingsRepository = SettingsRepository()
     private var currentSortKey: SortKey = .rank
     
     enum SortKey {
@@ -20,12 +23,20 @@ class MarketViewModel: ObservableObject {
     }
     
     init() {
+        loadSettings()
         observeCurrencyUpdates()
         fetchTickers()
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Load Settings
+    private func loadSettings() {
+        self.useCustomCurrency = settingsRepository.getUseCustomCurrency()
+        self.selectedCurrency = settingsRepository.getCustomCurrencyCode()
+        self.currencyRate = settingsRepository.getCustomCurrencyRate()
     }
     
     // MARK: - Observe Currency Updates

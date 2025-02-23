@@ -8,14 +8,24 @@ class MainViewModel: ObservableObject {
     @Published var isStaleData = false
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
     @Published var selectedCurrency: String = "NOK" // Default currency, updated dynamically
+    @Published var useCustomCurrency: Bool = false // Track if custom currency is used
     @Published var lastUpdated: String = "-"  // Stores last update time
 
     private let coinLoreManager = CoinLoreManager.shared
+    private let settingsRepository = SettingsRepository()
     private var lastFetchTime: Date?
     
     init() {
+        loadSettings()
         observeCurrencyUpdates()
         fetchMarketData()
+    }
+
+    // MARK: - Load Settings
+    private func loadSettings() {
+        self.useCustomCurrency = settingsRepository.getUseCustomCurrency()
+        self.selectedCurrency = settingsRepository.getCustomCurrencyCode()
+        self.currencyRate = settingsRepository.getCustomCurrencyRate()
     }
 
     // MARK: - Fetch Market Data

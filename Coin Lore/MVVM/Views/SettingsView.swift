@@ -27,6 +27,23 @@ struct SettingsView: View {
                     }
                 }
 
+                // MARK: - Custom Fake Currency
+                Section(header: Text("Tilpasset Valuta")) {
+                    Toggle("Bruk tilpasset valuta", isOn: $viewModel.useCustomCurrency)
+                        .onChange(of: viewModel.useCustomCurrency) { _ in
+                            viewModel.updateCustomCurrency()
+                        }
+
+                    TextField("Valutanavn (3 bokstaver)", text: $viewModel.customCurrencyCode)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .disabled(!viewModel.useCustomCurrency)
+
+                    TextField("Valutakurs", value: $viewModel.customCurrencyRate, format: .number)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.decimalPad)
+                        .disabled(!viewModel.useCustomCurrency)
+                }
+
                 // MARK: - Emoji Animation Threshold
                 Section(header: Text("Emoji-animasjon")) {
                     VStack {
@@ -47,7 +64,6 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
-
 
             }
             .navigationTitle("Innstillinger")
