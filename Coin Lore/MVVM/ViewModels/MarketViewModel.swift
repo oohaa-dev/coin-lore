@@ -5,7 +5,6 @@
 //  Created by Ola Oldernes Hårstad on 21/02/2025.
 //
 
-
 import Foundation
 import SwiftUI
 
@@ -14,8 +13,8 @@ class MarketViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
+    @Published var isAscending: Bool = true // Tracks sorting order
 
-    
     private let coinLoreManager = CoinLoreManager.shared
     private var sortAscending = true
     private var currentSortKey: SortKey = .rank
@@ -78,24 +77,19 @@ class MarketViewModel: ObservableObject {
         
         switch currentSortKey {
         case .rank:
-            cryptoTickers.sort { sortAscending ? $0.rank < $1.rank : $0.rank > $1.rank }
+            cryptoTickers.sort { isAscending ? $0.rank < $1.rank : $0.rank > $1.rank }
         case .percentChange1h:
-            cryptoTickers.sort { sortAscending ? Double($0.percentChange1h) ?? 0 < Double($1.percentChange1h) ?? 0 : Double($0.percentChange1h) ?? 0 > Double($1.percentChange1h) ?? 0 }
+            cryptoTickers.sort { isAscending ? Double($0.percentChange1h) ?? 0 < Double($1.percentChange1h) ?? 0 : Double($0.percentChange1h) ?? 0 > Double($1.percentChange1h) ?? 0 }
         case .percentChange24h:
-            cryptoTickers.sort { sortAscending ? Double($0.percentChange24h) ?? 0 < Double($1.percentChange24h) ?? 0 : Double($0.percentChange24h) ?? 0 > Double($1.percentChange24h) ?? 0 }
+            cryptoTickers.sort { isAscending ? Double($0.percentChange24h) ?? 0 < Double($1.percentChange24h) ?? 0 : Double($0.percentChange24h) ?? 0 > Double($1.percentChange24h) ?? 0 }
         case .percentChange7d:
-            cryptoTickers.sort { sortAscending ? Double($0.percentChange7d) ?? 0 < Double($1.percentChange7d) ?? 0 : Double($0.percentChange7d) ?? 0 > Double($1.percentChange7d) ?? 0 }
+            cryptoTickers.sort { isAscending ? Double($0.percentChange7d) ?? 0 < Double($1.percentChange7d) ?? 0 : Double($0.percentChange7d) ?? 0 > Double($1.percentChange7d) ?? 0 }
         }
     }
     
     func toggleSortOrder() {
+        isAscending.toggle() // Toggle sorting direction
         sortAscending.toggle()
         sortTickers()
     }
 }
-
-
-
-
-
-

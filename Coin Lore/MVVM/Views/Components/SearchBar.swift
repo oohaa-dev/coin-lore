@@ -18,7 +18,7 @@ struct SearchBar: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.gray)
                             .padding(.leading, 8)
-                        
+                   
                         Spacer()
                         
                         if !searchText.isEmpty {
