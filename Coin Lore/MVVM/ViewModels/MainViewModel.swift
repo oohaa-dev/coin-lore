@@ -7,13 +7,14 @@ class MainViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isStaleData = false
     @Published var currencyRate: Double = 10.0  // Default value, updated dynamically
+    @Published var selectedCurrency: String = "NOK" // Default currency, updated dynamically
     @Published var lastUpdated: String = "-"  // Stores last update time
 
     private let coinLoreManager = CoinLoreManager.shared
     private var lastFetchTime: Date?
     
     init() {
-        observeCurrencyRateUpdates()
+        observeCurrencyUpdates()
         fetchMarketData()
     }
 
@@ -46,9 +47,10 @@ class MainViewModel: ObservableObject {
         return "Last updated: " + formatter.string(from: date)
     }
     
-    // MARK: - Observe Currency Rate Updates
-    private func observeCurrencyRateUpdates() {
+    // MARK: - Observe Currency Updates
+    private func observeCurrencyUpdates() {
         NotificationCenter.default.addObserver(self, selector: #selector(updateCurrencyRate(_:)), name: .currencyRateUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateSelectedCurrency(_:)), name: .selectedCurrencyUpdated, object: nil)
     }
 
     @objc private func updateCurrencyRate(_ notification: Notification) {
@@ -59,11 +61,18 @@ class MainViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Convert USD to NOK
-    func convertToNOK(usdValue: Double) -> String {
-        guard currencyRate > 0 else { return "N/A" }
-        let nokValue = usdValue * currencyRate
-        return NumberFormatterUtility.format(nokValue, currency: "NOK")
+    @objc private func updateSelectedCurrency(_ notification: Notification) {
+        if let newCurrency = notification.userInfo?["selectedCurrency"] as? String {
+            DispatchQueue.main.async {
+                self.selectedCurrency = newCurrency
+            }
+        }
     }
-
+    
+    // MARK: - Convert USD to Selected Currency
+    func convertToSelectedCurrency(usdValue: Double) -> String {
+        guard currencyRate > 0 else { return "N/A" }
+        let convertedValue = usdValue * currencyRate
+        return NumberFormatterUtility.format(convertedValue, currency: selectedCurrency)
+    }
 }

@@ -57,7 +57,7 @@ struct MarketView: View {
                     }
                 }
             }
-            .navigationTitle("Cryptocurrencies")
+            .navigationTitle("Cryptocurrencies (\(viewModel.selectedCurrency))")
             .onAppear {
                 viewModel.fetchTickers()
             }
@@ -100,7 +100,7 @@ struct CryptoCardView: View {
                 Text(ticker.name)
                     .font(.headline)
                 
-                Text(viewModel.convertToNOK(usdValue: Double(ticker.priceUSD) ?? 0.0))
+                Text(viewModel.convertToSelectedCurrency(usdValue: Double(ticker.priceUSD) ?? 0.0))
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }

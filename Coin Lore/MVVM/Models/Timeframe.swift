@@ -6,7 +6,7 @@ enum Timeframe: String, CaseIterable, Hashable, Identifiable {
     case twentyFourHour = "24h"
     case sevenDays = "7d"
 
-    var id: String { self.rawValue } // Conforming to Identifiable
+    var id: String { self.rawValue }
     
     var sortOrder: Int {
         switch self {
