@@ -1,3 +1,10 @@
+//
+//  MainViewModel.swift
+//  Coin Lore
+//
+//  Created by Ola Oldernes Hårstad on 23/02/2025.
+//
+
 import Foundation
 import SwiftUI
 
@@ -15,7 +22,6 @@ class MainViewModel: ObservableObject {
     private var lastFetchTime: Date?
     private var staleDataTimer: Timer?
 
-    
     private let errorHandler: ErrorHandler
 
     init(errorHandler: ErrorHandler) {
@@ -76,8 +82,6 @@ class MainViewModel: ObservableObject {
                     self.isStaleData = false // ✅ Reset staleness status
                     self.startStaleDataTimer() // ✅ Restart timer to track freshness
 
-
-
                     self.lastUpdated = self.formatLastUpdated(date: now)
                     
                 case .failure(let error):
@@ -120,6 +124,20 @@ class MainViewModel: ObservableObject {
     func convertToSelectedCurrency(usdValue: Double) -> String {
         guard currencyRate > 0 else { return "N/A" }
         let convertedValue = usdValue * currencyRate
-        return NumberFormatterUtility.format(convertedValue, currency: selectedCurrency)
+        return NumberFormatterUtility.formatCurrency(convertedValue, currency: selectedCurrency)
     }
+
+    // MARK: - Format Numbers Correctly
+    func formatMarketCap(_ value: Double) -> String {
+        return NumberFormatterUtility.formatCurrency(value, currency: selectedCurrency)
+    }
+
+    func formatVolume(_ value: Double) -> String {
+        return NumberFormatterUtility.formatCurrency(value, currency: selectedCurrency)
+    }
+
+    func formatSupply(_ value: Double) -> String {
+        return NumberFormatterUtility.formatNumber(value)
+    }
+
 }

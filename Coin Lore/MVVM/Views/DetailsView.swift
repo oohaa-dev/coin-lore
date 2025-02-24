@@ -27,15 +27,21 @@ struct DetailsView: View {
                                 .frame(maxWidth: .infinity, minHeight: 100)
                         } else if let details = viewModel.cryptoDetails {
                             MarketStatSquare(title: "Symbol", value: details.symbol, isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Price (\(viewModel.selectedCurrency))", value: viewModel.convertToSelectedCurrency(usdValue: Double(details.priceUSD) ?? 0.0), isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Market Cap (\(viewModel.selectedCurrency))", value: viewModel.convertToSelectedCurrency(usdValue: Double(details.marketCapUSD) ?? 0.0), isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "24h Volume", value: viewModel.convertToSelectedCurrency(usdValue: details.volume24), isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Circulating Supply", value: details.circulatingSupply, isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Total Supply", value: details.totalSupply, isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Max Supply", value: details.maxSupply ?? "N/A", isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "1h Change", value: "\(details.percentChange1h)%", isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "24h Change", value: "\(details.percentChange24h)%", isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "7d Change", value: "\(details.percentChange7d)%", isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "Price (\(viewModel.selectedCurrency))", value: viewModel.convertToSelectedCurrency(usdValue: details.priceUSD)
+, isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "Market Cap (\(viewModel.selectedCurrency))", value: viewModel.formatMarketCap(details.marketCapUSD), isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "24h Volume", value: viewModel.formatVolume("\(details.volume24)"), isStale: viewModel.isStaleData, size: cellSize)
+
+
+                            MarketStatSquare(title: "Circulating Supply", value: viewModel.formatSupply(details.circulatingSupply), isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "Total Supply", value: viewModel.formatSupply(details.totalSupply), isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "Max Supply", value: viewModel.formatSupply("\(details.maxSupply)"), isStale: viewModel.isStaleData, size: cellSize)
+
+                            MarketStatSquare(title: "1h Change", value: details.percentChange1h, isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "24h Change", value: details.percentChange24h, isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(title: "7d Change", value: details.percentChange7d, isStale: viewModel.isStaleData, size: cellSize)
+
+
                         } else {
                             Text("No data available")
                                 .foregroundColor(.gray)

@@ -109,9 +109,22 @@ class DetailsViewModel: ObservableObject {
     }
 
     // MARK: - Convert USD to Selected Currency
-    func convertToSelectedCurrency(usdValue: Double) -> String {
-        guard currencyRate > 0 else { return "N/A" }
-        let convertedValue = usdValue * currencyRate
-        return NumberFormatterUtility.format(convertedValue, currency: selectedCurrency)
+    func convertToSelectedCurrency(usdValue: String) -> String {
+        guard let usdDouble = Double(usdValue), currencyRate > 0 else { return "N/A" }
+        let convertedValue = usdDouble * currencyRate
+        return NumberFormatterUtility.formatCurrency("\(convertedValue)", currency: selectedCurrency)
+    }
+
+    // MARK: - Format Numbers Correctly
+    func formatMarketCap(_ value: String) -> String {
+        return NumberFormatterUtility.formatCurrency(value, currency: selectedCurrency)
+    }
+
+    func formatVolume(_ value: String) -> String {
+        return NumberFormatterUtility.formatCurrency(value, currency: selectedCurrency)
+    }
+
+    func formatSupply(_ value: String) -> String {
+        return NumberFormatterUtility.formatNumber(value)
     }
 }

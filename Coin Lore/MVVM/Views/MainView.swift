@@ -32,6 +32,7 @@ struct MainView: View {
                                 MarketStatSquare(title: "Total Volume (\(viewModel.selectedCurrency))", value: viewModel.convertToSelectedCurrency(usdValue: marketData.totalVolume), isStale: viewModel.isStaleData, size: cellSize)
                                 MarketStatSquare(title: "BTC Dominance", value: "\(marketData.btcDominance)%", isStale: viewModel.isStaleData, size: cellSize)
                                 MarketStatSquare(title: "ETH Dominance", value: "\(marketData.ethDominance)%", isStale: viewModel.isStaleData, size: cellSize)
+
                             } else {
                                 Text("No data available")
                                     .foregroundColor(.gray)
