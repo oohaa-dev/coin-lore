@@ -67,17 +67,17 @@ struct SettingsView: View {
                             step: 1
                         )
                     }
-                    
-                    
-                    // MARK: - Dark Mode Toggle
-                    Section() {
-                        Toggle("Dark mode", isOn: $viewModel.isDarkMode)
-                            .onChange(of: viewModel.isDarkMode) { _ in
-                                viewModel.toggleDarkMode()
-                            }
-                    }
                 }
-                .navigationTitle("Settings")
+
+                // MARK: - Dark Mode Toggle
+                Section(header: Text("Appearance")) {
+                    Toggle("Dark mode", isOn: $viewModel.isDarkMode)
+                        .onChange(of: viewModel.isDarkMode) { _ in
+                            viewModel.toggleDarkMode()
+                        }
+                }
+
+                }
                 .onAppear {
                     errorHandler.clearError() // ✅ Clear old errors before fetching
                     viewModel.fetchExchangeRates()
@@ -85,4 +85,4 @@ struct SettingsView: View {
             }
         }
     }
-}
+
