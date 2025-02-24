@@ -9,7 +9,7 @@ class MarketViewModel: ObservableObject {
     @Published var useCustomCurrency: Bool = false // Track if custom currency is used
     @Published var isAscending: Bool = true // Tracks sorting order
 
-    private let coinLoreManager = CoinLoreManager.shared
+    private let repository = CoinLoreRepository()
     private let settingsRepository = SettingsRepository()
     private var currentSortKey: SortKey = .rank
     private let errorHandler: ErrorHandler
@@ -82,7 +82,7 @@ class MarketViewModel: ObservableObject {
         isLoading = true
         errorHandler.clearError() // ✅ Clear previous errors before fetching new data
 
-        coinLoreManager.fetchTickers { [weak self] result in
+        repository.getTickers { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false

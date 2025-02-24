@@ -10,7 +10,7 @@ class MainViewModel: ObservableObject {
     @Published var useCustomCurrency: Bool = false // Track if custom currency is used
     @Published var lastUpdated: String = "-"  // Stores last update time
 
-    private let coinLoreManager = CoinLoreManager.shared
+    private let repository = CoinLoreRepository()
     private let settingsRepository = SettingsRepository()
     private var lastFetchTime: Date?
     
@@ -41,7 +41,7 @@ class MainViewModel: ObservableObject {
         isLoading = true
         errorHandler.clearError() // ✅ Clear errors before fetching
 
-        coinLoreManager.fetchGlobalMarketData { [weak self] result in
+        repository.getGlobalMarketData { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false

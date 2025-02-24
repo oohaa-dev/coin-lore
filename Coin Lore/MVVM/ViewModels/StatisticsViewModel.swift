@@ -22,7 +22,7 @@ class StatisticsViewModel: ObservableObject {
     @Published var availableCurrencies: [String] = [] // List of all possible currencies
     @Published var selectedCurrencies: Set<String> = [] // Selected currencies from user
 
-    private let coinLoreManager = CoinLoreManager.shared
+    private let repository = CoinLoreRepository()
     private let errorHandler: ErrorHandler // ✅ Centralized error handling
 
     private var sortAscending = true
@@ -51,7 +51,7 @@ class StatisticsViewModel: ObservableObject {
         }
 
         print("🔄 Calling CoinLoreManager.fetchTickers()")
-        coinLoreManager.fetchTickers { [weak self] result in
+        repository.getTickers { [weak self] result in
             DispatchQueue.main.async {
                 print("✅ Received response in fetchTickers closure")
 

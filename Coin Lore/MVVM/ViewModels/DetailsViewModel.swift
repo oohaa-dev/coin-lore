@@ -13,13 +13,13 @@ class DetailsViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private let coinLoreManager = CoinLoreManager.shared
-    
+    private let repository = CoinLoreRepository()
+
     func fetchCryptoDetails(for id: String) {
         isLoading = true
         errorMessage = nil
         
-        coinLoreManager.fetchCryptoDetails(id: id) { [weak self] result in
+        repository.getCryptoDetails(id: id) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
