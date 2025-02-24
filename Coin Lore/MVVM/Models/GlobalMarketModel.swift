@@ -1,12 +1,32 @@
-//
-//  GlobalMarketModel.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 21/02/2025.
-//
-
 import Foundation
-
+/**
+ * GlobalMarketModel-strukturen representerer samlede markedsdata for kryptovaluta.
+ *
+ * 1. **Generell markedsinformasjon**:
+ *    - `coinsCount`: Totalt antall kryptovalutaer på markedet.
+ *    - `activeMarkets`: Antall aktive handelsmarkeder.
+ *    - `totalMcap`: Total markedsverdi i USD.
+ *    - `totalVolume`: Totalt handelsvolum i USD.
+ *
+ * 2. **Dominans og endringer**:
+ *    - `btcDominance`: Bitcoin-dominans i prosent.
+ *    - `ethDominance`: Ethereum-dominans i prosent.
+ *    - `mcapChange`: Endring i total markedsverdi.
+ *    - `volumeChange`: Endring i handelsvolum.
+ *    - `avgChangePercent`: Gjennomsnittlig prisendring på tvers av markedet.
+ *
+ * 3. **All-Time High (ATH) verdier**:
+ *    - `volumeATH`: Historisk høyeste handelsvolum.
+ *    - `mcapATH`: Historisk høyeste markedsverdi.
+ *
+ * 4. **Tilpassede JSON-mappinger**:
+ *    - Bruker `CodingKeys` for å mappe API-responsens snake_case-nøkler til Swift-egenskaper.
+ *
+ * 5. **Tilpasset dekodering i initialiseringsmetoden**:
+ *    - Noen API-felter (`btc_d`, `eth_d`, `mcap_change`, `volume_change`, `avg_change_percent`) returneres som strenger i JSON.
+ *    - Disse verdiene konverteres til `Double` ved hjelp av `Double(string) ?? 0.0` for å unngå krasj ved feilformatert data.
+ *    - Andre numeriske verdier dekodes direkte som `Double`.
+ */
 struct GlobalMarketModel: Codable {
     let coinsCount: Int
     let activeMarkets: Int
@@ -41,7 +61,6 @@ struct GlobalMarketModel: Codable {
         totalMcap = try container.decode(Double.self, forKey: .totalMcap)
         totalVolume = try container.decode(Double.self, forKey: .totalVolume)
         
-        // The JSON returns these values as strings, so convert them to Double.
         let btcString = try container.decode(String.self, forKey: .btcDominance)
         btcDominance = Double(btcString) ?? 0.0
         
@@ -57,7 +76,6 @@ struct GlobalMarketModel: Codable {
         let avgChangePercentString = try container.decode(String.self, forKey: .avgChangePercent)
         avgChangePercent = Double(avgChangePercentString) ?? 0.0
         
-        // The following fields are expected to be numbers.
         volumeATH = try container.decode(Double.self, forKey: .volumeATH)
         mcapATH = try container.decode(Double.self, forKey: .mcapATH)
     }
