@@ -13,6 +13,8 @@ class MainViewModel: ObservableObject {
     private let repository = CoinLoreRepository()
     private let settingsRepository = SettingsRepository()
     private var lastFetchTime: Date?
+    private var staleDataTimer: Timer?
+
     
     private let errorHandler: ErrorHandler
 
@@ -21,6 +23,19 @@ class MainViewModel: ObservableObject {
         loadSettings()
         observeCurrencyUpdates()
         fetchMarketData()
+        startStaleDataTimer() // ✅ Start timer when the view model is initialized
+    }
+    
+    // MARK: - Start Timer to Check Staleness
+    private func startStaleDataTimer() {
+        staleDataTimer?.invalidate() // ✅ Ensure we don’t create multiple timers
+        staleDataTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            guard let self = self, let lastFetch = self.lastFetchTime else { return }
+            let now = Date()
+            DispatchQueue.main.async {
+                self.isStaleData = now.timeIntervalSince(lastFetch) > 5 // ✅ Auto-update stale status every second
+            }
+        }
     }
 
     // MARK: - Load Settings
@@ -50,16 +65,19 @@ class MainViewModel: ObservableObject {
                 case .success(let data):
                     let now = Date()
 
-                    // ✅ Data is stale if it's older than 5 minutes
-                    if let lastFetch = self.lastFetchTime {
-                        let fiveMinutesAgo = Date().addingTimeInterval(-300)
-                        self.isStaleData = lastFetch < fiveMinutesAgo
+                    if let lastFetch = self.lastFetchTime { // ✅ Check staleness FIRST
+                        self.isStaleData = now.timeIntervalSince(lastFetch) > 5
                     } else {
                         self.isStaleData = false
                     }
 
-                    self.marketData = data
-                    self.lastFetchTime = now
+                    self.lastFetchTime = now // ✅ Update fetch time
+                    self.marketData = data // ✅ Update market data
+                    self.isStaleData = false // ✅ Reset staleness status
+                    self.startStaleDataTimer() // ✅ Restart timer to track freshness
+
+
+
                     self.lastUpdated = self.formatLastUpdated(date: now)
                     
                 case .failure(let error):
