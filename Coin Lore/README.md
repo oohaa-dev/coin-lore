@@ -1,6 +1,7 @@
 Generell info:
 - Apple Swift version 6.0.2
 - Xcode 16.1
+- Minimum Deployments iOS 18.1
 ------------------------------------------------------------------------------------------------------------------------
 
 Mappestruktur:
