@@ -2,48 +2,63 @@ import SwiftUI
 
 struct SplashView: View {
     @State private var isActive = false
-    @State private var rotationAngle = 0.0
+    @State private var coinRotation = 0.0
+    @State private var coinFlip = false
 
     var body: some View {
         if isActive {
-            TabsView() // Navigate to the main TabsView after the splash screen
+            TabsView() // Main app screen
         } else {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
 
-                VStack(spacing: 20) { // Add spacing between elements
-                    Image(systemName: "globe")
+                VStack {
+                    // Coin Toss Animation
+                    Image(systemName: "bitcoinsign.circle.fill") // You can replace this with a custom coin image
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 150)
-                        .foregroundColor(.white)
-                        .rotationEffect(.degrees(rotationAngle))
+                        .foregroundColor(.yellow)
+                        .rotationEffect(.degrees(coinRotation))
                         .onAppear {
-                            startRotationAnimation() // Start the animation
+                            startCoinTossAnimation()
                         }
 
-                    Text("NewsApp")
+                    Text("Coin Lore")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
+                        .padding(.top, 20)
+                        .opacity(coinFlip ? 1 : 0)
                 }
             }
             .onAppear {
-                // Delay before transitioning to TabsView
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    withAnimation {
-                        isActive = true
-                    }
-                }
+                startSplashScreenTransition()
             }
         }
     }
 
-    // Helper function for rotation animation
-    private func startRotationAnimation() {
-        withAnimation(Animation.linear(duration: 2).repeatForever(autoreverses: false)) {
-            rotationAngle = 360
+    private func startCoinTossAnimation() {
+        // Animate the coin toss
+        withAnimation(.easeInOut(duration: 0.7).repeatCount(1, autoreverses: false)) {
+            coinRotation = 360
+        }
+
+        // After animation finishes, show the text and navigate to main view
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            withAnimation {
+                coinFlip = true
+            }
+        }
+    }
+
+    private func startSplashScreenTransition() {
+        // Transition to the next screen after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                isActive = true
+            }
         }
     }
 }
