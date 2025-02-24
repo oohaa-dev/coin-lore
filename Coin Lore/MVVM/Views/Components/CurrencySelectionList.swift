@@ -1,19 +1,12 @@
-//
-//  CurrencySelectionList.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 22/02/2025.
-//
-
 import SwiftUI
 
 struct CurrencySelectionList: View {
-    @ObservedObject var viewModel: StatisticsViewModel // ViewModel now manages data
-    var onDone: () -> Void // Callback for when the user finishes selection
+    @ObservedObject var viewModel: StatisticsViewModel
+    var onDone: () -> Void
 
-    @State private var sortOrder: Bool = true // true for A-Z, false for Z-A
-    @State private var selectedFilter: FilterOption = .all // Default: show all
-    @State private var searchText: String = "" // Stores search input
+    @State private var sortOrder: Bool = true
+    @State private var selectedFilter: FilterOption = .all
+    @State private var searchText: String = ""
 
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -56,7 +49,7 @@ struct CurrencySelectionList: View {
     var body: some View {
         NavigationView {
             VStack {
-                SearchBar(searchText: $searchText) // 🔍 Integrated Search Bar
+                SearchBar(searchText: $searchText)
 
                 if filteredCurrencies.isEmpty {
                     VStack {
@@ -78,7 +71,7 @@ struct CurrencySelectionList: View {
                                     .foregroundColor(.blue)
                             }
                         }
-                        .contentShape(Rectangle()) // Makes the whole row tappable
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             toggleSelection(currency)
                         }
@@ -100,13 +93,13 @@ struct CurrencySelectionList: View {
                         .help("Clear All")
 
                         Button(action: {
-                            sortOrder.toggle() // Toggle sorting order
+                            sortOrder.toggle()
                         }) {
                             Image(systemName: sortOrder ? "arrow.up" : "arrow.down")
                         }
 
                         Button(action: {
-                            selectedFilter = selectedFilter.next // Cycle through filter options
+                            selectedFilter = selectedFilter.next
                         }) {
                             Image(systemName: selectedFilter.icon)
                         }
@@ -114,34 +107,34 @@ struct CurrencySelectionList: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        onDone() // Call the completion handler
+                        onDone()
                     }
                 }
             }
             .onAppear {
-                viewModel.fetchStatistics() // Ensure available currencies are loaded
+                viewModel.fetchStatistics()
             }
         }
     }
 
     private func toggleSelection(_ currency: String) {
-        var updatedSelection = viewModel.selectedCurrencies // Create a local copy
+        var updatedSelection = viewModel.selectedCurrencies
 
         if updatedSelection.contains(currency) {
-            updatedSelection.remove(currency) // Deselect if already selected
+            updatedSelection.remove(currency)
         } else {
-            updatedSelection.insert(currency) // Select if not selected
+            updatedSelection.insert(currency)
         }
 
-        viewModel.updateSelectedCurrencies(updatedSelection) // Save updated selection
+        viewModel.updateSelectedCurrencies(updatedSelection)
     }
 
     private func selectAllCurrencies() {
-        viewModel.updateSelectedCurrencies(Set(viewModel.filteredAvailableCurrencies)) // Select all available
+        viewModel.updateSelectedCurrencies(Set(viewModel.filteredAvailableCurrencies))
     }
 
     private func clearAllCurrencies() {
-        viewModel.updateSelectedCurrencies([]) // Clear all selections
+        viewModel.updateSelectedCurrencies([])
     }
 }
 

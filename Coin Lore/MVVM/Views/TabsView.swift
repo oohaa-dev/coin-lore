@@ -1,14 +1,13 @@
 import SwiftUI
 
 struct TabsView: View {
-    @StateObject private var errorHandler = ErrorHandler() // ✅ Centralized Error Handler
+    @StateObject private var errorHandler = ErrorHandler() 
     @StateObject private var statisticsViewModel: StatisticsViewModel
     @StateObject private var settingsViewModel: SettingsViewModel
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false // Persist dark mode setting
+    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
 
-    // ✅ Initialize `@StateObject` inline to avoid referencing `self`
     init() {
-        let errorHandler = ErrorHandler() // ✅ Shared error handler instance
+        let errorHandler = ErrorHandler()
         let statsVM = StatisticsViewModel(errorHandler: errorHandler)
         _statisticsViewModel = StateObject(wrappedValue: statsVM)
         _settingsViewModel = StateObject(wrappedValue: SettingsViewModel(statisticsViewModel: statsVM, errorHandler: errorHandler))
@@ -16,31 +15,31 @@ struct TabsView: View {
 
     var body: some View {
         TabView {
-            MainView(errorHandler: errorHandler) // ✅ Pass ErrorHandler to all views
+            MainView(errorHandler: errorHandler)
                 .tabItem {
                     Image(systemName: "square.grid.3x3.fill")
                     Text("Dashboard")
                 }
 
-            MarketView(errorHandler: errorHandler) // ✅ Pass ErrorHandler
+            MarketView(errorHandler: errorHandler)
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Market")
                 }
 
-            StatisticsView(viewModel: statisticsViewModel, errorHandler: errorHandler) // ✅ Pass ErrorHandler
+            StatisticsView(viewModel: statisticsViewModel, errorHandler: errorHandler)
                 .tabItem {
                     Image(systemName: "chart.pie.fill")
                     Text("Statistics")
                 }
 
-            SettingsView(viewModel: settingsViewModel, errorHandler: errorHandler) // ✅ Pass ErrorHandler
+            SettingsView(viewModel: settingsViewModel, errorHandler: errorHandler)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Settings")
                 }
         }
-        .preferredColorScheme(isDarkMode ? .dark : .light) // Apply theme globally in TabsView
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .overlay(
             Group {
                 if let error = errorHandler.currentError {
@@ -54,7 +53,6 @@ struct TabsView: View {
     }
 }
 
-// MARK: - Preview
 struct TabsView_Previews: PreviewProvider {
     static var previews: some View {
         TabsView()

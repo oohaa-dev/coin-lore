@@ -1,15 +1,7 @@
-//
-//  RefreshButton.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 24/02/2025.
-//
-
-
 import SwiftUI
 
 struct RefreshButton: View {
-    var action: () -> Void // Closure to handle button tap
+    var action: () -> Void
     
     var body: some View {
         Button(action: action) {
@@ -18,14 +10,5 @@ struct RefreshButton: View {
                 .frame(width: 50, height: 50)
                 .foregroundColor(.blue)
         }
-    }
-}
-
-// Preview
-struct RefreshButton_Previews: PreviewProvider {
-    static var previews: some View {
-        RefreshButton(action: {
-            print("Refresh Button Pressed")
-        })
     }
 }

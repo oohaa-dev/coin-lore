@@ -1,10 +1,3 @@
-//
-//  MultiTimeframeToggleView.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 22/02/2025.
-//
-
 import SwiftUI
 
 struct MultiTimeframeToggleView: View {
@@ -43,15 +36,6 @@ struct MultiTimeframeToggleView: View {
         default:
             return Color.gray.opacity(0.2)
         }
-    }
-}
-
-// MARK: - SwiftUI Preview
-struct MultiTimeframeToggleView_Previews: PreviewProvider {
-    static var previews: some View {
-        MultiTimeframeToggleView(selectedTimeframes: .constant([.oneHour, .twentyFourHour, .sevenDays]))
-            .previewLayout(.sizeThatFits)
-            .padding()
     }
 }
 

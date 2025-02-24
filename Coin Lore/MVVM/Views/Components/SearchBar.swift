@@ -1,5 +1,3 @@
-
-
 import SwiftUI
 
 struct SearchBar: View {
@@ -34,12 +32,5 @@ struct SearchBar: View {
                 )
         }
         .padding(.horizontal)
-    }
-}
-
-// Preview
-struct SearchBar_Previews: PreviewProvider {
-    static var previews: some View {
-        SearchBar(searchText: .constant(""))
     }
 }

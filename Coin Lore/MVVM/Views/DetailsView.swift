@@ -16,11 +16,11 @@ struct DetailsView: View {
                     let isLandscape = geometry.size.width > geometry.size.height
                     let columns = isLandscape ? 5 : 2
                     let rows = isLandscape ? 2 : 5
-                    let gridItem = Array(repeating: GridItem(.flexible(), spacing: 0), count: columns) // ✅ Removed extra spacing
+                    let gridItem = Array(repeating: GridItem(.flexible(), spacing: 0), count: columns) 
                     let cellSize = CGSize(width: geometry.size.width / CGFloat(columns), height: geometry.size.height / CGFloat(rows))
 
 
-                    LazyVGrid(columns: gridItem, spacing: 0) { // ✅ Removed padding to match MainView
+                    LazyVGrid(columns: gridItem, spacing: 0) {
                         if viewModel.isLoading {
                             ProgressView("Loading...")
                                 .progressViewStyle(CircularProgressViewStyle())
@@ -50,7 +50,6 @@ struct DetailsView: View {
                     }
                 }
 
-                // ✅ Refresh Button in Bottom-Right Corner
                 VStack {
                     Spacer()
                     HStack {

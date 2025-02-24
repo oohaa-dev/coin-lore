@@ -3,21 +3,19 @@ import Foundation
 class SettingsRepository {
     private let userDefaults = UserDefaults.standard
 
-    // Nøkler for lagring i UserDefaults
     private enum Keys {
         static let currencyRate = "currencyRate"
         static let emojiThreshold = "emojiThreshold"
         static let selectedCurrency = "selectedCurrency"
-        static let lastRealCurrency = "lastRealCurrency" // Stores the last real currency
+        static let lastRealCurrency = "lastRealCurrency"
         static let useCustomCurrency = "useCustomCurrency"
         static let customCurrencyCode = "customCurrencyCode"
         static let customCurrencyRate = "customCurrencyRate"
-        static let isDarkMode = "isDarkMode" // 🔥 Add key for dark mode setting
+        static let isDarkMode = "isDarkMode"
 
     }
     
 
-    // MARK: - Dark Mode
     func getDarkMode() -> Bool {
         return userDefaults.bool(forKey: Keys.isDarkMode)
     }
@@ -26,9 +24,8 @@ class SettingsRepository {
         userDefaults.set(value, forKey: Keys.isDarkMode)
     }
     
-    // MARK: - Selected Currency
     func getSelectedCurrency() -> String {
-        let useCustom = getUseCustomCurrency() // Ensure this defaults to false
+        let useCustom = getUseCustomCurrency()
         if useCustom {
             return getCustomCurrencyCode()
         }
@@ -38,12 +35,11 @@ class SettingsRepository {
 
     func setSelectedCurrency(_ currency: String) {
         if !getUseCustomCurrency() {
-            userDefaults.set(currency, forKey: Keys.lastRealCurrency) // Store real currency
+            userDefaults.set(currency, forKey: Keys.lastRealCurrency)
             userDefaults.set(currency, forKey: Keys.selectedCurrency)
         }
     }
 
-    // Standardverdier hvis ingen verdi er lagret
     private enum DefaultValues {
         static let currencyRate: Double = 10.0
         static let emojiThreshold: Int = 10
@@ -52,7 +48,6 @@ class SettingsRepository {
         static let customCurrencyRate: Double = 1.0
     }
 
-    // MARK: - Valutakurs (NOK per USD)
     func getCurrencyRate() -> Double {
         return userDefaults.double(forKey: Keys.currencyRate, defaultValue: DefaultValues.currencyRate)
     }
@@ -61,7 +56,6 @@ class SettingsRepository {
         userDefaults.set(value, forKey: Keys.currencyRate)
     }
 
-    // MARK: - Emoji-animasjonsgrense
     func getEmojiThreshold() -> Int {
         return userDefaults.integer(forKey: Keys.emojiThreshold, defaultValue: DefaultValues.emojiThreshold)
     }
@@ -70,7 +64,6 @@ class SettingsRepository {
         userDefaults.set(value, forKey: Keys.emojiThreshold)
     }
 
-    // MARK: - Custom Currency
     func getUseCustomCurrency() -> Bool {
         return userDefaults.bool(forKey: Keys.useCustomCurrency)
     }
@@ -79,7 +72,6 @@ class SettingsRepository {
         userDefaults.set(value, forKey: Keys.useCustomCurrency)
         
         if !value {
-            // If disabling custom currency, restore last real currency
             setSelectedCurrency(getSelectedCurrency())
         }
     }
@@ -101,7 +93,6 @@ class SettingsRepository {
     }
 }
 
-// MARK: - UserDefaults Extension for Defaults
 extension UserDefaults {
     func double(forKey key: String, defaultValue: Double) -> Double {
         if object(forKey: key) == nil { return defaultValue }

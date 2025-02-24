@@ -1,14 +1,5 @@
-//
-//  Timeframe.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 24/02/2025.
-//
-
-
 import SwiftUI
 
-// MARK: - Timeframe Enum
 enum Timeframe: String, CaseIterable, Hashable, Identifiable {
     case oneHour = "1h"
     case twentyFourHour = "24h"

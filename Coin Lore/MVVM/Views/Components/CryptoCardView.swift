@@ -1,12 +1,4 @@
-//
-//  CryptoCardView.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 24/02/2025.
-//
-
-import SwiftUICore
-
+import SwiftUI
 
 struct CryptoCardView: View {
     let ticker: CryptoTickerModel

@@ -102,7 +102,6 @@ class DetailsViewModel: ObservableObject {
             let now = Date()
             DispatchQueue.main.async {
                 self.isStaleData = now.timeIntervalSince(lastFetch) > 5
-                print("[DetailsViewModel] startStaleDataTimer - Timer startet")
             }
         }
     }

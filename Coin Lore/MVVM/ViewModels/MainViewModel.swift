@@ -75,6 +75,7 @@ class MainViewModel: ObservableObject {
             self.selectedCurrency = settingsRepository.getSelectedCurrency()
             self.currencyRate = settingsRepository.getCurrencyRate()
         }
+        print("[MainViewModel] loadSettings - Innstillinger lastet")
     }
 
 
@@ -130,6 +131,7 @@ class MainViewModel: ObservableObject {
                     self.startStaleDataTimer()
 
                     self.lastUpdated = self.formatLastUpdated(date: now)
+                    print("[MainViewModel] fetchMarketData - Markedsdata henting fullført, data oppdatert")
                     
                 case .failure(let error):
                     self.errorHandler.setError(error)
@@ -153,6 +155,7 @@ class MainViewModel: ObservableObject {
     private func formatLastUpdated(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss"
+        print("[MainViewModel] formatLastUpdated - Formatert dato: \(formatter.string(from: date))")
         return "Last updated: " + formatter.string(from: date)
     }
     
@@ -187,6 +190,7 @@ class MainViewModel: ObservableObject {
         if let newRate = notification.userInfo?["currencyRate"] as? Double {
             DispatchQueue.main.async {
                 self.currencyRate = newRate
+                print("[MainViewModel] updateCurrencyRate - Valutakurs oppdatert til: \(self.currencyRate)")
             }
         }
     }
@@ -201,11 +205,11 @@ class MainViewModel: ObservableObject {
      * 2. **Oppdaterer UI på hovedtråden**:
      *    - Bruker `DispatchQueue.main.async` for å sikre at `selectedCurrency`-verdien oppdateres på hovedtråden.
      */
-
     @objc private func updateSelectedCurrency(_ notification: Notification) {
         if let newCurrency = notification.userInfo?["selectedCurrency"] as? String {
             DispatchQueue.main.async {
                 self.selectedCurrency = newCurrency
+                print("[MainViewModel] updateSelectedCurrency - Valuta oppdatert til: \(self.selectedCurrency)")
             }
         }
     }

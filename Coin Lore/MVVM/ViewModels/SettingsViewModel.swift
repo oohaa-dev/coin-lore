@@ -46,6 +46,7 @@ class SettingsViewModel: ObservableObject {
     func toggleDarkMode() {
         isDarkMode.toggle()
         settingsRepository.setDarkMode(isDarkMode)
+        print("[SettingsViewModel] toggleDarkMode - Mørk modus \(isDarkMode ? "aktivert" : "deaktivert")")
     }
 
     /**
@@ -66,6 +67,7 @@ class SettingsViewModel: ObservableObject {
         settingsRepository.setCurrencyRate(newRate)
 
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": newRate])
+        print("[SettingsViewModel] updateCurrencyRate - Valutakurs oppdatert til: \(newRate)")
     }
 
     /**
@@ -97,6 +99,8 @@ class SettingsViewModel: ObservableObject {
         }
 
         statisticsViewModel.updateEmojiThreshold(self.emojiThreshold)
+        
+        print("[SettingsViewModel] loadSettings - Innstillinger lastet")
     }
 
     /**
@@ -120,11 +124,12 @@ class SettingsViewModel: ObservableObject {
     func updateSelectedCurrency(_ newCurrency: String) {
         if !useCustomCurrency {
             selectedCurrency = newCurrency
-            lastRealCurrency = newCurrency // Store real currency before switching
+            lastRealCurrency = newCurrency
             settingsRepository.setSelectedCurrency(newCurrency)
             updateCurrencyRateFromAPI()
 
             NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": newCurrency])
+            print("[SettingsViewModel] updateSelectedCurrency - Valuta oppdatert til: \(newCurrency)")
         }
     }
 
@@ -145,6 +150,7 @@ class SettingsViewModel: ObservableObject {
         emojiThreshold = newThreshold
         settingsRepository.setEmojiThreshold(newThreshold)
         statisticsViewModel.updateEmojiThreshold(newThreshold)
+        print("[SettingsViewModel] updateEmojiThreshold - Emoji terskel oppdatert til: \(newThreshold)")
     }
 
     /**
@@ -170,7 +176,7 @@ class SettingsViewModel: ObservableObject {
      */
     func fetchExchangeRates() {
         isLoading = true
-        errorHandler.clearError() // ✅ Clear previous errors before fetching
+        errorHandler.clearError()
 
         currencyManager.fetchExchangeRates { [weak self] (result: Result<[String: Double], Error>) in
             DispatchQueue.main.async {
@@ -179,8 +185,9 @@ class SettingsViewModel: ObservableObject {
                 case .success(let rates):
                     self?.exchangeRates = rates
                     self?.updateCurrencyRateFromAPI()
+                    print("[SettingsViewModel] fetchExchangeRates - Valutakurser hentet og oppdatert")
                 case .failure(let error):
-                    self?.errorHandler.setError(error) // ✅ Handle error centrally
+                    self?.errorHandler.setError(error)
                 }
             }
         }
@@ -201,6 +208,7 @@ class SettingsViewModel: ObservableObject {
             applyCustomCurrency()
         } else if let rate = exchangeRates[selectedCurrency] {
             updateCurrencyRate(rate)
+            print("[SettingsViewModel] updateCurrencyRateFromAPI - Valutakurs oppdatert til: \(selectedCurrency) - \(exchangeRates[selectedCurrency] ?? 0)")
         }
     }
 
@@ -226,6 +234,8 @@ class SettingsViewModel: ObservableObject {
         } else {
             restoreRealCurrency()
         }
+
+        print("[SettingsViewModel] updateCustomCurrency - Tilpasset valuta oppdatert: \(useCustomCurrency ? "Bruker tilpasset valuta: \(customCurrencyCode ?? "Ukjent")" : "Gjenopprettet original valuta")")
     }
 
     /**
@@ -246,6 +256,7 @@ class SettingsViewModel: ObservableObject {
 
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": customCurrencyRate])
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": customCurrencyCode])
+        print("[SettingsViewModel] applyCustomCurrency - Tilpasset valuta aktivert: \(customCurrencyCode ?? "Ukjent"), Valutakurs satt til: \(customCurrencyRate)")
     }
 
     /**
@@ -265,5 +276,7 @@ class SettingsViewModel: ObservableObject {
         updateCurrencyRateFromAPI()
 
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": lastRealCurrency])
+        print("[SettingsViewModel] restoreRealCurrency - Gjenopprettet original valuta: \(lastRealCurrency ?? "Ukjent")")
+
     }
 }

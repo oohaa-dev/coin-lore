@@ -12,9 +12,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                
-                
-                // MARK: - Currency Selection
                 Section(header: Text("Currency")) {
                     Picker("Choose app currency", selection: $viewModel.selectedCurrency) {
                         ForEach(viewModel.exchangeRates.keys.sorted(), id: \.self) { currency in
@@ -35,7 +32,6 @@ struct SettingsView: View {
                     }
                 }
                 
-                // MARK: - Custom Fake Currency
                 Section(header: Text("Custom Currency")) {
                     Toggle("Use a custom currency", isOn: $viewModel.useCustomCurrency)
                         .onChange(of: viewModel.useCustomCurrency) { _ in
@@ -52,7 +48,6 @@ struct SettingsView: View {
                         .disabled(!viewModel.useCustomCurrency)
                 }
                 
-                // MARK: - Emoji Animation Threshold
                 Section(header: Text("Emoji-animation")) {
                     VStack {
                         Text("Threshold for animation: \(Int(viewModel.emojiThreshold))%")
@@ -69,7 +64,6 @@ struct SettingsView: View {
                     }
                 }
 
-                // MARK: - Dark Mode Toggle
                 Section(header: Text("Appearance")) {
                     Toggle("Dark mode", isOn: $viewModel.isDarkMode)
                         .onChange(of: viewModel.isDarkMode) { _ in
@@ -79,7 +73,7 @@ struct SettingsView: View {
 
                 }
                 .onAppear {
-                    errorHandler.clearError() // ✅ Clear old errors before fetching
+                    errorHandler.clearError()
                     viewModel.fetchExchangeRates()
                 }
             }

@@ -7,15 +7,14 @@ struct SplashView: View {
 
     var body: some View {
         if isActive {
-            TabsView() // Main app screen
+            TabsView()
         } else {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
 
                 VStack {
-                    // Coin Toss Animation
-                    Image(systemName: "bitcoinsign.circle.fill") // You can replace this with a custom coin image
+                    Image(systemName: "bitcoinsign.circle.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 150)
@@ -40,12 +39,10 @@ struct SplashView: View {
     }
 
     private func startCoinTossAnimation() {
-        // Animate the coin toss
         withAnimation(.easeInOut(duration: 0.7).repeatCount(1, autoreverses: false)) {
             coinRotation = 360
         }
 
-        // After animation finishes, show the text and navigate to main view
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
             withAnimation {
                 coinFlip = true
@@ -54,17 +51,10 @@ struct SplashView: View {
     }
 
     private func startSplashScreenTransition() {
-        // Transition to the next screen after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation {
                 isActive = true
             }
         }
-    }
-}
-
-struct SplashView_Previews: PreviewProvider {
-    static var previews: some View {
-        SplashView()
     }
 }

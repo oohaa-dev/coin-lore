@@ -1,13 +1,4 @@
-//
-//  AppError.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 24/02/2025.
-//
-
-
 import Foundation
-
 
 enum AppError: LocalizedError {
     case networkError

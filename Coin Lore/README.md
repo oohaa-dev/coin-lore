@@ -1,6 +1,17 @@
+Mappestruktur:
+- Jeg har fulgt MVVM-arkitekturen, som skiller mellom Model, ViewModel og View.
+    - Models-mappen er ansvarlig for å definere dataene og forretningslogikken.
+    - ViewModels håndterer kommunikasjonen mellom modellen og utsikten, og er ansvarlig for å formatere dataene for visning.
+    - Filene i Views representerer brukergrensesnittet og UI-komponentene.
+        - I Views-mappen finnes også en undermappe kalt Components, hvor jeg har plassert delte og/eller ekstra UI-komponenter som kan gjenbrukes på tvers av ulike visninger.
+- API-mappen inneholder Manager-filer som håndterer kommunikasjonen med de forskjellige APIene.
+- Jeg har skilt ut delte og/eller ekstra funksjoner i Utilities-mappen for å holde koden ryddig og gjenbrukbar.
+- Repositories-mappen er ansvarlig for lagring, hovedsakelig i form av UserDefaults.
+
+------------------------------------------------------------------------------------------------------------------------
 
 User Experience:
-    (Relevant backend skrevet i parantes)
+    (Relevant kontekst skrevet i parantes)
     /Metakommentar skrevet i skråstrek/
 
 1. Brukeren trykker på appicon og SplashView åpner seg.
@@ -25,26 +36,34 @@ User Experience:
     - Brukeren kan trykke på en kryptovaluta og bli ført til DetailsView.
         - DetailsView viser detaljert informasjon med samme design som på MainView.
             - Her er det også lagt inn timer på 5sekund som gjør skriften rød om den ikke er oppdatert på 5sek og en "RefreshButton".
+    - Brukeren kan "Pull-To-Refresh" for å oppdatere dataene.
 
 5. StatisticsView:
     - Brukeren ser en tom graf og tre knapper med forskjellig farge "1h", "24" og "7d". De ser også en "+"-knapp.
-    - Når de trykker på +-knappen, så får de mulighet til å legge til kryptovalutaer de ønsker å se i grafen.
+    - Når de trykker på "+"-knappen, så får de mulighet til å legge til kryptovalutaer i grafen.
         - Inne på denne listen kan brukeren søke på spesifikk kryptovaluta, sortere alfabetisk (a-z/z-a), selektere alle, de-selektere alle og til slutt filtrere listen basert på de kryptovaluta de har valgt, ikke valgt eller se begge deler.
             - (Når brukeren trykker på "done", så lagres de valgte kryptovalutaene i StatisticsRepository til bruk for emoji-animasjon/funksjonalitet senere)
     - Når brukeren har lagt til kryptovalutaer i grafen, så kan de velge om de vil hvilke "change" de ønsker å se: de kan velge å se både 1, 2 og 3 søyler ved å trykke på fargeknappene. Fargene på knappene matcher søylen som representeres i grafen.
         - Grafens verdier (x-akse), justeres automatisk til å passe med den høyeste verdien som representeres.
+    - Brukeren kan "Pull-To-Refresh" for å oppdatere dataene.
         
 6. SettingsView:
-    - Øverst her får brukeren muligheten til å sette hvilken valuta som skal benyttes i hele appen. De ser også valutakursen av valgt valuta opp imot USD.
-        - Defaut er dette satt til NOK
-    - Det neste valget brukeren ser er at de kan velge å lage en custom valuta. Når de aktiverer denne, så blir de tre bokstavene og verdien brukeren skriver inn, satt som valuta og verdi i hele appen.
+    - Øverst på skjermern får brukeren muligheten til å sette hvilken valuta som skal benyttes i hele appen. De ser også valutakursen av valgt valuta opp imot USD.
+        - (Default er dette satt til NOK.)
+    - Det neste valget brukeren ser er at de kan velge å lage en custom valuta. Når de aktiverer denne, så blir de tre bokstavene og verdien brukeren skriver inn, satt i hele appen.
         - Når de skrur dette av, går verdien tilbake til den valgte valutaen øverst på siden.
-        - /Her har jeg tatt meg frihet til å justere det ene kravet fra eksamen til at dette er en mer generell "custom"-funksjon, heller enn at brukeren kan velge hva NOK skal være./
+        - /Her har jeg tatt meg frihet til å justere det ene kravet fra eksamen til at dette er en mer generell "custom"-funksjon, heller enn at brukeren kan velge hva NOK skal være. Dette i forlengelse at jeg har lagt til en ekte valutakonverter hvor den faktiske verdien for NOK kan bli satt./
     - Deretter ser brukeren en "Threshold for animation" slider. Verdien som settes her avgjør når en emoji-animasjon skal skje på StatisticsView.
-        - (Default er dette satt til 10%. StatisticsViewModel sammenligner nye verdier med de som er lagret i StatisticsRepository og ser om de oversiger prosenten som er satt her i SettingsView. Hvis den gjør dette, så starter en emoji-animasjon når brukeren entrer StatisticsView)
-    - Til slutt ser brukeren Dark Mode toggle som aktiverer mørk-modus i over hele appen.
+        - (Default er dette satt til 10%. StatisticsViewModel sammenligner nye verdier med de som er lagret i StatisticsRepository og ser om de oversiger prosenten som er lagret i SettingsRepository. Hvis den gjør dette, så starter en emoji-animasjon når brukeren entrer StatisticsView)
+    - Til slutt ser brukeren Dark Mode toggle som aktiverer mørk-modus på hele appen.
     
-7. Errorhandling
-    - Jeg har satt opp en sentralisert errorhandling som gir samme beskjed til brukeren om de ikke lengre har nettverk.
+7. (Errorhandling)
+    - (Jeg har satt opp en sentralisert errorhandling som gir samme beskjed til brukeren om de ikke lengre har nettverk.)
         
-        
+------------------------------------------------------------------------------------------------------------------------
+
+Videre utvikling:
+    - Jeg skulle gjerne ryddet enda mer i strukturen i form av å bryte ned enkelte filer til komponenter. Noen filer har noen ganger svært lik funksjonalietet/UI, noe som kunne blitt gjort om til delte komponenter for.
+    - Errorhandling ble satt opp til å fungere opp imot eksamenskravet, men skulle gjerne vært utbedret i form av mer spesifikke errorer som kan forekomme.
+    - Det var ikke et krav med bruk av database i denne eksamen, men jeg ville demonstrert dette om det var mer tid til overs med for eksempel at brukeren kunne lagret data om en currency på et gitt tidspunkt og hatt en slags profilside hvor de kunne sett en oversikt dette.
+    - Generelt utvikle et bedre interaksjonsdesign, herunder samle definerende farger og ikoner i assets.

@@ -17,7 +17,6 @@ struct MarketView: View {
          
                 SearchBar(searchText: $searchText)
 
-                // Sorting Controls
                 HStack {
                     Picker("Sort By", selection: $selectedSortKey) {
                         Text("Rank").tag(MarketViewModel.SortKey.rank)
@@ -56,7 +55,7 @@ struct MarketView: View {
                         .padding(.horizontal)
                     }
                     .refreshable {
-                        errorHandler.clearError() // ✅ Clear errors on refresh
+                        errorHandler.clearError()
                         viewModel.fetchTickers()
                     }
                 }

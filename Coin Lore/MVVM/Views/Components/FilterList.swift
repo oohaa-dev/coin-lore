@@ -1,18 +1,3 @@
-//
-//  FilterList.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 22/02/2025.
-//
-
-
-//
-//  FilterList.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 22/02/2025.
-//
-
 import SwiftUI
 
 struct FilterList: View {
@@ -52,12 +37,5 @@ struct FilterList: View {
             }
             .navigationTitle("Filter Currencies")
         }
-    }
-}
-
-// Preview
-struct FilterList_Previews: PreviewProvider {
-    static var previews: some View {
-        FilterList(selectedFilter: .constant(.all), onApply: {})
     }
 }

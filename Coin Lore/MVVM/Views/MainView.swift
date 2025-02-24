@@ -43,7 +43,6 @@ struct MainView: View {
                     }
                 }
 
-                // Refresh Button in Bottom-Right Corner
                 VStack {
                     Spacer()
                     HStack {

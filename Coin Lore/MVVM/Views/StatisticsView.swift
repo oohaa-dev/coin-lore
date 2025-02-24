@@ -17,7 +17,6 @@ struct StatisticsView: View {
             NavigationView {
                 VStack(alignment: .leading, spacing: 16) {
                     Group {
-                        // ✅ Centralized Error Handling
                         if let error = errorHandler.currentError as? LocalizedError {
                             ErrorView(message: error.errorDescription ?? "An unknown error occurred.")
                         } else if let error = errorHandler.currentError {
@@ -30,44 +29,42 @@ struct StatisticsView: View {
                         }
                     }
                     .refreshable {
-                        errorHandler.clearError() // ✅ Clear errors on refresh
+                        errorHandler.clearError()
                         viewModel.fetchStatistics()
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
                 .navigationBarHidden(true)
                 .onAppear {
-                    errorHandler.clearError() // ✅ Clear old errors before fetching
+                    errorHandler.clearError()
                     viewModel.fetchStatistics()
                 }
             }
             .sheet(isPresented: $showCurrencySelection) {
                 CurrencySelectionList(
-                    viewModel: viewModel, // Pass the StatisticsViewModel instance
+                    viewModel: viewModel,
                     onDone: {
                         showCurrencySelection = false
                     }
                 )
             }
 
-            // Floating Add Button in Bottom-Right Corner
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     AddCurrencyButton {
-                        errorHandler.clearError() // ✅ Ensure no old errors persist
-                        viewModel.fetchStatistics() // Fetch fresh data before showing
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // Slight delay for UI update
+                        errorHandler.clearError()
+                        viewModel.fetchStatistics()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             showCurrencySelection = true
                         }
                     }
-                    .padding(.bottom, 20) // Adjust to position above the tab bar
+                    .padding(.bottom, 20)
                     .padding(.trailing, 20)
                 }
             }
 
-            // 💰 Emoji Animation
             if showAnimation {
                 ForEach(emojiPositions, id: \.self) { position in
                     EmojiView(xPosition: position)
@@ -80,19 +77,16 @@ struct StatisticsView: View {
             }
         }
         .onChange(of: viewModel.selectedCurrencies) { _ in
-            viewModel.fetchStatistics() // Reload data when selection changes
+            viewModel.fetchStatistics()
         }
     }
 
-    // MARK: - Start Emoji Animation
     private func startEmojiAnimation() {
-        guard !showAnimation else { return } // Prevent multiple animations
+        guard !showAnimation else { return }
 
-        // Generate random start positions for emojis
         emojiPositions = (0..<10).map { _ in CGFloat.random(in: 0...UIScreen.main.bounds.width) }
         showAnimation = true
 
-        // Stop the animation after 3 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation {
                 showAnimation = false

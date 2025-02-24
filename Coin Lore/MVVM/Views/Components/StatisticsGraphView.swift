@@ -6,8 +6,7 @@ struct StatisticsGraphView: View {
     var cryptos: [ChartData]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) { // ✅ Ensuring top alignment
-            // Timeframe Selection
+        VStack(alignment: .leading, spacing: 10) {
             MultiTimeframeToggleView(selectedTimeframes: $selectedTimeframes)
             
             ScrollView{
@@ -15,14 +14,13 @@ struct StatisticsGraphView: View {
                     
                     chartView
                 }
-                .frame(height: CGFloat(cryptos.count) * 50) // ✅ Ensuring correct height
+                .frame(height: CGFloat(cryptos.count) * 50)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading) // ✅ Keeping content at the top
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(.horizontal)
     }
 
-    // Chart View
     private var chartView: some View {
         Chart {
             ForEach(filteredData.indices, id: \ .self) { index in
@@ -39,7 +37,7 @@ struct StatisticsGraphView: View {
                         x: .value("Change", changeValue),
                         y: .value("Cryptocurrency", crypto.cryptoName)
                     )
-                    .position(by: .value("Timeframe", timeframe.rawValue)) // Prevents stacking
+                    .position(by: .value("Timeframe", timeframe.rawValue))
                     .foregroundStyle(timeframe.color)
                 }
             }
@@ -59,7 +57,6 @@ struct StatisticsGraphView: View {
         .chartXScale(domain: adjustedXAxisRange)
     }
 
-    // Adjusted X-Axis Range
     private var adjustedXAxisRange: ClosedRange<Double> {
         let maxChange = filteredData.flatMap { crypto in
             selectedTimeframes.map { timeframe in
@@ -72,24 +69,7 @@ struct StatisticsGraphView: View {
         return -maxChange...maxChange
     }
 
-    // Filtered Data
     private var filteredData: [ChartData] {
         cryptos
-    }
-}
-
-
-// MARK: - SwiftUI Preview
-struct StatisticsGraphView_Previews: PreviewProvider {
-    static var previews: some View {
-        StatisticsGraphView(cryptos: [
-            ChartData(cryptoName: "Bitcoin", change1h: -3.4, change24h: 2.1, change7d: 5.3),
-            ChartData(cryptoName: "Ethereum", change1h: 3.2, change24h: -1.7, change7d: 4.2),
-            ChartData(cryptoName: "Ripple", change1h: -3.3, change24h: 1.2, change7d: -2.4),
-            ChartData(cryptoName: "Litecoin", change1h: 3.4, change24h: 4.0, change7d: -1.8),
-            ChartData(cryptoName: "Dogecoin", change1h: 1.3, change24h: -2.1, change7d: 3.9)
-        ])
-        .previewLayout(.sizeThatFits)
-        .padding()
     }
 }

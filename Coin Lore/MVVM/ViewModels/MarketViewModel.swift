@@ -56,6 +56,8 @@ class MarketViewModel: ObservableObject {
             self.selectedCurrency = settingsRepository.getSelectedCurrency()
             self.currencyRate = settingsRepository.getCurrencyRate()
         }
+        
+        print("[MarketViewModel] loadSettings - Innstillinger lastet")
     }
 
     /**
@@ -89,6 +91,7 @@ class MarketViewModel: ObservableObject {
         if let newRate = notification.userInfo?["currencyRate"] as? Double {
             DispatchQueue.main.async {
                 self.currencyRate = newRate
+                print("[MarketViewModel] updateCurrencyRate - Valutakurs oppdatert til: \(self.currencyRate)")
             }
         }
     }
@@ -108,6 +111,7 @@ class MarketViewModel: ObservableObject {
         if let newCurrency = notification.userInfo?["selectedCurrency"] as? String {
             DispatchQueue.main.async {
                 self.selectedCurrency = newCurrency
+                print("[MarketViewModel] updateSelectedCurrency - Valuta oppdatert til: \(self.selectedCurrency)")
             }
         }
     }
@@ -171,6 +175,7 @@ class MarketViewModel: ObservableObject {
                 case .success(let tickers):
                     self.cryptoTickers = tickers
                     self.sortTickers()
+                    print("[MarketViewModel] fetchTickers - Ticker-henting fullført, data oppdatert")
                 case .failure(let error):
                     self.errorHandler.setError(error)
                 }
@@ -219,7 +224,6 @@ class MarketViewModel: ObservableObject {
                 value1 = Double($0.percentChange7d) ?? 0
                 value2 = Double($1.percentChange7d) ?? 0
             }
-
             return isAscending ? value1 < value2 : value1 > value2
         }
     }
@@ -238,6 +242,7 @@ class MarketViewModel: ObservableObject {
     func toggleSortOrder() {
         isAscending.toggle()
         sortTickers()
+        print("[MarketViewModel] toggleSortOrder - Sorteringsrekkefølge endret til: \(isAscending ? "Stigende" : "Synkende")")
     }
 
     /**
