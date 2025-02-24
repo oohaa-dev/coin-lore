@@ -18,26 +18,26 @@ struct TabsView: View {
         TabView {
             MainView(errorHandler: errorHandler) // ✅ Pass ErrorHandler to all views
                 .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Hjem")
+                    Image(systemName: "square.grid.3x3.fill")
+                    Text("Dashboard")
                 }
 
             MarketView(errorHandler: errorHandler) // ✅ Pass ErrorHandler
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
-                    Text("Marked")
+                    Text("Market")
                 }
 
             StatisticsView(viewModel: statisticsViewModel, errorHandler: errorHandler) // ✅ Pass ErrorHandler
                 .tabItem {
                     Image(systemName: "chart.pie.fill")
-                    Text("Statistikk")
+                    Text("Statistics")
                 }
 
             SettingsView(viewModel: settingsViewModel, errorHandler: errorHandler) // ✅ Pass ErrorHandler
                 .tabItem {
                     Image(systemName: "gearshape.fill")
-                    Text("Innstillinger")
+                    Text("Settings")
                 }
         }
         .preferredColorScheme(isDarkMode ? .dark : .light) // Apply theme globally in TabsView
