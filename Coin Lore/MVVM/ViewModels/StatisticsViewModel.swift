@@ -253,6 +253,7 @@ class StatisticsViewModel: ObservableObject {
      *
      * 1. **Setter ny terskelverdi**:
      *    - Oppdaterer `emojiThreshold` til `newThreshold`.
+     *    - Lagrer dette i SettingsRepository
      */
     func updateEmojiThreshold(_ newThreshold: Int) {
         self.emojiThreshold = newThreshold

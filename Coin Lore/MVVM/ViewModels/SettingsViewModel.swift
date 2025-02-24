@@ -8,7 +8,7 @@ extension Notification.Name {
 
 class SettingsViewModel: ObservableObject {
     @Published var currencyRate: Double = 10.0
-    @Published var emojiThreshold: Int = 10
+    @Published var emojiThreshold: Int
     @Published var selectedCurrency: String = "NOK"
     @Published var exchangeRates: [String: Double] = [:]
 
@@ -30,6 +30,9 @@ class SettingsViewModel: ObservableObject {
         self.statisticsViewModel = statisticsViewModel
         self.errorHandler = errorHandler
         self.isDarkMode = settingsRepository.getDarkMode()
+        
+        self.emojiThreshold = settingsRepository.getEmojiThreshold()
+
         loadSettings()
     }
 
@@ -235,7 +238,7 @@ class SettingsViewModel: ObservableObject {
             restoreRealCurrency()
         }
 
-        print("[SettingsViewModel] updateCustomCurrency - Tilpasset valuta oppdatert: \(useCustomCurrency ? "Bruker tilpasset valuta: \(customCurrencyCode ?? "Ukjent")" : "Gjenopprettet original valuta")")
+        print("[SettingsViewModel] updateCustomCurrency - Tilpasset valuta oppdatert: \(useCustomCurrency ? "Bruker tilpasset valuta: \(customCurrencyCode)" : "Gjenopprettet original valuta")")
     }
 
     /**
@@ -256,7 +259,7 @@ class SettingsViewModel: ObservableObject {
 
         NotificationCenter.default.post(name: .currencyRateUpdated, object: nil, userInfo: ["currencyRate": customCurrencyRate])
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": customCurrencyCode])
-        print("[SettingsViewModel] applyCustomCurrency - Tilpasset valuta aktivert: \(customCurrencyCode ?? "Ukjent"), Valutakurs satt til: \(customCurrencyRate)")
+        print("[SettingsViewModel] applyCustomCurrency - Tilpasset valuta aktivert: \(customCurrencyCode), Valutakurs satt til: \(customCurrencyRate)")
     }
 
     /**
@@ -276,7 +279,7 @@ class SettingsViewModel: ObservableObject {
         updateCurrencyRateFromAPI()
 
         NotificationCenter.default.post(name: .selectedCurrencyUpdated, object: nil, userInfo: ["selectedCurrency": lastRealCurrency])
-        print("[SettingsViewModel] restoreRealCurrency - Gjenopprettet original valuta: \(lastRealCurrency ?? "Ukjent")")
+        print("[SettingsViewModel] restoreRealCurrency - Gjenopprettet original valuta: \(lastRealCurrency)")
 
     }
 }

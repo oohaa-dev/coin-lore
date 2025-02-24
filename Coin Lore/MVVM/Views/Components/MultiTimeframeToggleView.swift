@@ -33,8 +33,6 @@ struct MultiTimeframeToggleView: View {
             return Color(hex: "FF8A09")
         case .sevenDays:
             return Color(hex: "A548D9")
-        default:
-            return Color.gray.opacity(0.2)
         }
     }
 }

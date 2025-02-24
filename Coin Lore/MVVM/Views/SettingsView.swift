@@ -19,7 +19,7 @@ struct SettingsView: View {
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
-                    .onChange(of: viewModel.selectedCurrency) { newCurrency in
+                    .onChange(of: viewModel.selectedCurrency) { oldCurrency, newCurrency in
                         viewModel.updateSelectedCurrency(newCurrency)
                     }
                     
@@ -34,7 +34,7 @@ struct SettingsView: View {
                 
                 Section(header: Text("Custom Currency")) {
                     Toggle("Use a custom currency", isOn: $viewModel.useCustomCurrency)
-                        .onChange(of: viewModel.useCustomCurrency) { _ in
+                        .onChange(of: viewModel.useCustomCurrency) {
                             viewModel.updateCustomCurrency()
                         }
                     
@@ -56,17 +56,20 @@ struct SettingsView: View {
                         Slider(
                             value: Binding(
                                 get: { Double(viewModel.emojiThreshold) },
-                                set: { viewModel.emojiThreshold = Int($0) }
+                                set: { newValue in
+                                    viewModel.updateEmojiThreshold(Int(newValue)) 
+                                }
                             ),
                             in: 0...100,
                             step: 1
                         )
+
                     }
                 }
 
                 Section(header: Text("Appearance")) {
                     Toggle("Dark mode", isOn: $viewModel.isDarkMode)
-                        .onChange(of: viewModel.isDarkMode) { _ in
+                        .onChange(of: viewModel.isDarkMode) {
                             viewModel.toggleDarkMode()
                         }
                 }

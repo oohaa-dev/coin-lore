@@ -57,12 +57,16 @@ class SettingsRepository {
     }
 
     func getEmojiThreshold() -> Int {
-        return userDefaults.integer(forKey: Keys.emojiThreshold, defaultValue: DefaultValues.emojiThreshold)
+        return userDefaults.object(forKey: Keys.emojiThreshold) == nil
+            ? DefaultValues.emojiThreshold
+            : userDefaults.integer(forKey: Keys.emojiThreshold)
     }
 
     func setEmojiThreshold(_ value: Int) {
         userDefaults.set(value, forKey: Keys.emojiThreshold)
     }
+
+
 
     func getUseCustomCurrency() -> Bool {
         return userDefaults.bool(forKey: Keys.useCustomCurrency)

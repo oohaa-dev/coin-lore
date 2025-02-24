@@ -25,9 +25,10 @@ struct MarketView: View {
                         Text("7d Change").tag(MarketViewModel.SortKey.percentChange7d)
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                    .onChange(of: selectedSortKey) { newValue in
+                    .onChange(of: selectedSortKey) { oldValue, newValue in
                         viewModel.sortTickers(by: newValue)
                     }
+
 
                     Button(action: {
                         viewModel.toggleSortOrder()

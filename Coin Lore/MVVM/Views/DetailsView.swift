@@ -35,7 +35,12 @@ struct DetailsView: View {
 
                             MarketStatSquare(title: "Circulating Supply", value: viewModel.formatSupply(details.circulatingSupply), isStale: viewModel.isStaleData, size: cellSize)
                             MarketStatSquare(title: "Total Supply", value: viewModel.formatSupply(details.totalSupply), isStale: viewModel.isStaleData, size: cellSize)
-                            MarketStatSquare(title: "Max Supply", value: viewModel.formatSupply("\(details.maxSupply)"), isStale: viewModel.isStaleData, size: cellSize)
+                            MarketStatSquare(
+                                title: "Max Supply",
+                                value: viewModel.formatSupply(details.maxSupply ?? "N/A"),
+                                isStale: viewModel.isStaleData,
+                                size: cellSize
+                            )
 
                             MarketStatSquare(title: "1h Change", value: details.percentChange1h, isStale: viewModel.isStaleData, size: cellSize)
                             MarketStatSquare(title: "24h Change", value: details.percentChange24h, isStale: viewModel.isStaleData, size: cellSize)

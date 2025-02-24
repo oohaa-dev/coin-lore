@@ -71,12 +71,12 @@ struct StatisticsView: View {
                 }
             }
         }
-        .onChange(of: viewModel.shouldAnimate) { newValue in
+        .onChange(of: viewModel.shouldAnimate) { oldValue, newValue in
             if newValue {
                 startEmojiAnimation()
             }
         }
-        .onChange(of: viewModel.selectedCurrencies) { _ in
+        .onChange(of: viewModel.selectedCurrencies) {
             viewModel.fetchStatistics()
         }
     }

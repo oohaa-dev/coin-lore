@@ -8,6 +8,8 @@ class ErrorHandler: ObservableObject {
     }
 
     func clearError() {
-        self.currentError = nil
+        DispatchQueue.main.async {
+            self.currentError = nil
+        }
     }
 }

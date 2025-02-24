@@ -1,3 +1,8 @@
+Generell info:
+- Apple Swift version 6.0.2
+- Xcode 16.1
+------------------------------------------------------------------------------------------------------------------------
+
 Mappestruktur:
 - Jeg har fulgt MVVM-arkitekturen, som skiller mellom Model, ViewModel og View.
     - Models-mappen er ansvarlig for å definere dataene og forretningslogikken.
