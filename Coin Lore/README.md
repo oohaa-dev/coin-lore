@@ -63,7 +63,7 @@ User Experience:
 ------------------------------------------------------------------------------------------------------------------------
 
 Videre utvikling:
-    - Jeg skulle gjerne ryddet enda mer i strukturen i form av å bryte ned enkelte filer til komponenter. Noen filer har noen ganger svært lik funksjonalietet/UI, noe som kunne blitt gjort om til delte komponenter for.
+    - Jeg skulle gjerne ryddet enda mer i strukturen i form av å bryte ned enkelte filer til komponenter. Noen filer har noen ganger lik funksjonalietet/UI, noe som kunne blitt gjort om til delte komponenter for.
     - Errorhandling ble satt opp til å fungere opp imot eksamenskravet, men skulle gjerne vært utbedret i form av mer spesifikke errorer som kan forekomme.
     - Det var ikke et krav med bruk av database i denne eksamen, men jeg ville demonstrert dette om det var mer tid til overs med for eksempel at brukeren kunne lagret data om en currency på et gitt tidspunkt og hatt en slags profilside hvor de kunne sett en oversikt dette.
-    - Generelt utvikle et bedre interaksjonsdesign, herunder samle definerende farger og ikoner i assets.
+    - Generelt utvikle bedre interaksjonsdesign, herunder samle definerende farger og ikoner i assets.
