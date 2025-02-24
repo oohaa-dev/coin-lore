@@ -55,7 +55,6 @@ struct MainView: View {
                     }
                 }
             }
-            .navigationTitle("Global Market")
             .background(Color(.systemBackground))
             .onAppear {
                 viewModel.fetchMarketData()

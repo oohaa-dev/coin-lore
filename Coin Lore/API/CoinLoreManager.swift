@@ -1,8 +1,7 @@
 import Foundation
 
 class CoinLoreManager {
-    static let shared = CoinLoreManager() // Reintroduced Singleton (optional)
-    
+    static let shared = CoinLoreManager() 
     private let baseURL = "https://api.coinlore.net/api"
     private let session: URLSession
     
@@ -73,7 +72,8 @@ class CoinLoreManager {
     }
     
     /// Fetch cryptocurrency details by ID
-    func fetchCryptoDetails(id: String, completion: @escaping (Result<CryptoDetailsModel, Error>) -> Void) {
+    func fetchCryptoDetails(id: String, completion: @escaping (Result<CryptoTickerModel, Error>) -> Void) {
         fetchData(endpoint: "/ticker/?id=\(id)", isArray: true, completion: completion)
     }
+
 }

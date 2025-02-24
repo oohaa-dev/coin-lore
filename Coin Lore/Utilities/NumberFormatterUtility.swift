@@ -1,10 +1,3 @@
-//
-//  NumberFormatterUtility.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 23/02/2025.
-//
-
 
 import SwiftUI
 

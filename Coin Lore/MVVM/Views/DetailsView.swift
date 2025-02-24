@@ -1,11 +1,3 @@
-//
-//  DetailsView.swift
-//  Coin Lore
-//
-//  Created by Ola Oldernes Hårstad on 23/02/2025.
-//
-
-
 import SwiftUI
 
 struct DetailsView: View {
@@ -33,9 +25,14 @@ struct DetailsView: View {
                             .font(.title2)
                             .foregroundColor(.gray)
                         
-                        DetailRow(label: "Price (USD)", value: "$\(details.priceUSD)")
-                        DetailRow(label: "Market Cap (USD)", value: "$\(details.marketCapUSD)")
-                        DetailRow(label: "24h Volume", value: "$\(details.volume24)")
+                        // Format and display the values with the selected currency
+                        DetailRow(
+                            label: "Price (\(viewModel.selectedCurrency))",
+                            value: viewModel.convertToSelectedCurrency(usdValue: Double(details.priceUSD) ?? 0.0)
+                        )
+
+                        DetailRow(label: "Market Cap (\(viewModel.selectedCurrency))", value: viewModel.convertToSelectedCurrency(usdValue: Double(details.marketCapUSD) ?? 0.0))
+                        DetailRow(label: "24h Volume", value: viewModel.convertToSelectedCurrency(usdValue: details.volume24))
                         DetailRow(label: "Circulating Supply", value: details.circulatingSupply)
                         DetailRow(label: "Total Supply", value: details.totalSupply)
                         DetailRow(label: "Max Supply", value: details.maxSupply ?? "N/A")
@@ -55,20 +52,5 @@ struct DetailsView: View {
             viewModel.fetchCryptoDetails(for: cryptoID)
         }
         .navigationTitle("Crypto Details")
-    }
-}
-
-struct DetailRow: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(label + ":")
-                .bold()
-            Spacer()
-            Text(value)
-        }
-        .padding(.vertical, 4)
     }
 }

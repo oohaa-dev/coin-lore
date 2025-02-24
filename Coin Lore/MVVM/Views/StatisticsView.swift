@@ -16,12 +16,6 @@ struct StatisticsView: View {
         ZStack {
             NavigationView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Statistics")
-                        .font(.largeTitle)
-                        .bold()
-                        .padding(.top, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
                     Group {
                         // ✅ Centralized Error Handling
                         if let error = errorHandler.currentError as? LocalizedError {

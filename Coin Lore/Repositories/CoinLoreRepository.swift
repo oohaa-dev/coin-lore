@@ -18,7 +18,8 @@ class CoinLoreRepository {
     }
     
     /// Fetch cryptocurrency details by ID
-    func getCryptoDetails(id: String, completion: @escaping (Result<CryptoDetailsModel, Error>) -> Void) {
+    func getCryptoDetails(id: String, completion: @escaping (Result<CryptoTickerModel, Error>) -> Void) {
         apiClient.fetchCryptoDetails(id: id, completion: completion)
     }
+
 }
