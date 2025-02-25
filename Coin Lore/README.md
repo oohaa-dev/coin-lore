@@ -7,7 +7,7 @@ Generell info:
 Mappestruktur:
 - Jeg har fulgt MVVM-arkitekturen, som skiller mellom Model, ViewModel og View.
     - Models-mappen er ansvarlig for å definere dataene og forretningslogikken.
-    - ViewModels håndterer kommunikasjonen mellom modellen og utsikten, og er ansvarlig for å formatere dataene for visning.
+    - ViewModels håndterer kommunikasjonen mellom Models og Views, og er ansvarlig for å formatere dataene for visning.
     - Filene i Views representerer brukergrensesnittet og UI-komponentene.
         - I Views-mappen finnes også en undermappe kalt Components, hvor jeg har plassert delte og/eller ekstra UI-komponenter som kan gjenbrukes på tvers av ulike visninger.
 - API-mappen inneholder Manager-filer som håndterer kommunikasjonen med de forskjellige APIene.
